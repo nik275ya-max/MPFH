@@ -1,0 +1,1 @@
+{"root":["./src/main.ts","./src/vite-env.d.ts","./src/composables/useRecording.ts","./src/composables/useSettings.ts","./src/types/speech-recognition.d.ts","./src/App.vue","./src/components/QRCodeDisplay.vue","./src/components/RecordButton.vue","./src/components/SettingsModal.vue"],"version":"5.9.3"}
