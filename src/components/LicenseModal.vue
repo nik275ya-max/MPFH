@@ -11,11 +11,10 @@ const emit = defineEmits<{
   licensed: []
 }>()
 
-const { setLicenseKey, validationError, validateKeyFormat } = useLicense()
+const { setLicenseKey } = useLicense()
 
 const licenseInput = ref('')
 const localError = ref<string | null>(null)
-const isChecking = ref(false)
 
 watch(() => props.isOpen, (isOpen) => {
   if (!isOpen) {
@@ -24,7 +23,7 @@ watch(() => props.isOpen, (isOpen) => {
   }
 })
 
-const handleSubmit = async () => {
+const handleSubmit = () => {
   localError.value = null
 
   if (!licenseInput.value.trim()) {
@@ -32,28 +31,14 @@ const handleSubmit = async () => {
     return
   }
 
-  // Быстрая локальная проверка перед отправкой
-  const formatCheck = validateKeyFormat(licenseInput.value)
-  if (!formatCheck.valid) {
-    localError.value = formatCheck.error
-    return
-  }
+  // Локальная проверка формата и контрольной суммы
+  const result = setLicenseKey(licenseInput.value)
 
-  isChecking.value = true
-
-  try {
-    const result = await setLicenseKey(licenseInput.value)
-    
-    if (result.valid) {
-      emit('licensed')
-      emit('close')
-    } else {
-      localError.value = result.error
-    }
-  } catch (error) {
-    localError.value = 'Произошла ошибка при проверке ключа'
-  } finally {
-    isChecking.value = false
+  if (result.valid) {
+    emit('licensed')
+    emit('close')
+  } else {
+    localError.value = result.error
   }
 }
 
@@ -114,7 +99,6 @@ const handleInput = () => {
               type="text"
               class="form-input license-input"
               placeholder="MPFH-XXXX-XXXX-XXXX"
-              :disabled="isChecking"
               autofocus
             />
             <p class="input-hint">
@@ -122,20 +106,19 @@ const handleInput = () => {
             </p>
           </div>
 
-          <div v-if="localError || validationError" class="error-message">
+          <div v-if="localError" class="error-message">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
             </svg>
-            <span>{{ localError || validationError }}</span>
+            <span>{{ localError }}</span>
           </div>
 
           <button
             @click="handleSubmit"
             class="activate-button"
-            :disabled="isChecking || !licenseInput.trim()"
+            :disabled="!licenseInput.trim()"
           >
-            <span v-if="isChecking" class="loading-spinner"></span>
-            <span v-else>Активировать</span>
+            Активировать
           </button>
 
           <p class="license-info">
@@ -247,11 +230,6 @@ const handleInput = () => {
   box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
 }
 
-.license-input:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
 .input-hint {
   margin-top: 0.5rem;
   color: rgba(255, 255, 255, 0.5);
@@ -307,21 +285,6 @@ const handleInput = () => {
 .activate-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-}
-
-.loading-spinner {
-  width: 20px;
-  height: 20px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 .license-info {

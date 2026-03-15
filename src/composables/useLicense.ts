@@ -1,11 +1,6 @@
 import { ref, computed } from 'vue'
 
 const STORAGE_KEY = 'mpfh-license-key'
-const STATUS_KEY = 'mpfh-license-status'
-
-// Сервер для онлайн-проверки (замените на ваш реальный URL после развёртывания)
-// Пример эндпоинта: https://your-domain.com/api/validate-license?key=MPFH-XXXX-XXXX-XXXX
-const LICENSE_SERVER_URL = 'https://your-server.com/api/validate-license'
 
 /**
  * Вычисление CRC16 контрольной суммы
@@ -78,41 +73,6 @@ export function validateKeyFormat(key: string): LicenseValidationResult {
   return { valid: true, error: null }
 }
 
-/**
- * Онлайн-проверка ключа на сервере
- */
-async function validateKeyOnline(key: string): Promise<LicenseValidationResult> {
-  try {
-    const response = await fetch(`${LICENSE_SERVER_URL}?key=${encodeURIComponent(key)}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
-
-    if (!response.ok) {
-      if (response.status === 404 || response.status === 403) {
-        return { valid: false, error: 'Ключ не найден или заблокирован' }
-      }
-      throw new Error(`Server error: ${response.status}`)
-    }
-
-    const data = await response.json()
-    
-    if (data.valid) {
-      return { valid: true, error: null }
-    } else {
-      return { valid: false, error: data.message || 'Ключ недействителен' }
-    }
-  } catch (error) {
-    // Если нет соединения — считаем это ошибкой
-    return { 
-      valid: false, 
-      error: 'Нет соединения с сервером. Проверьте подключение к интернету.' 
-    }
-  }
-}
-
 const licenseKey = ref<string | null>(null)
 const isValidated = ref(false)
 const isValidating = ref(false)
@@ -136,7 +96,6 @@ function loadLicense(): string | null {
 function saveLicense(key: string): void {
   try {
     localStorage.setItem(STORAGE_KEY, key)
-    localStorage.setItem(STATUS_KEY, 'pending')
   } catch (error) {
     console.error('Failed to save license:', error)
   }
@@ -148,7 +107,6 @@ function saveLicense(key: string): void {
 function clearLicense(): void {
   try {
     localStorage.removeItem(STORAGE_KEY)
-    localStorage.removeItem(STATUS_KEY)
   } catch (error) {
     console.error('Failed to clear license:', error)
   }
@@ -164,26 +122,13 @@ function initLicense(): void {
 /**
  * Установка и валидация нового ключа
  */
-async function setLicenseKey(key: string): Promise<LicenseValidationResult> {
+export function setLicenseKey(key: string): LicenseValidationResult {
   const normalizedKey = key.toUpperCase().trim()
-  
-  // Сначала локальная проверка формата
-  const localValidation = validateKeyFormat(normalizedKey)
-  if (!localValidation.valid) {
-    return localValidation
-  }
 
-  isValidating.value = true
-  validationError.value = null
-
-  // Онлайн-проверка
-  const onlineValidation = await validateKeyOnline(normalizedKey)
-  
-  isValidating.value = false
-
-  if (!onlineValidation.valid) {
-    validationError.value = onlineValidation.error
-    return onlineValidation
+  // Локальная проверка формата и контрольной суммы
+  const validation = validateKeyFormat(normalizedKey)
+  if (!validation.valid) {
+    return validation
   }
 
   // Сохранение ключа
@@ -197,32 +142,18 @@ async function setLicenseKey(key: string): Promise<LicenseValidationResult> {
 /**
  * Проверка лицензии при запуске приложения
  */
-async function checkLicense(): Promise<LicenseValidationResult> {
+export function checkLicense(): LicenseValidationResult {
   const storedKey = loadLicense()
-  
+
   if (!storedKey) {
     return { valid: false, error: 'Лицензионный ключ не найден' }
   }
 
-  isValidating.value = true
-  validationError.value = null
-
-  // Локальная проверка формата
-  const localValidation = validateKeyFormat(storedKey)
-  if (!localValidation.valid) {
-    isValidating.value = false
+  // Локальная проверка формата и контрольной суммы
+  const validation = validateKeyFormat(storedKey)
+  if (!validation.valid) {
     clearLicense()
-    return localValidation
-  }
-
-  // Онлайн-проверка
-  const onlineValidation = await validateKeyOnline(storedKey)
-  isValidating.value = false
-
-  if (!onlineValidation.valid) {
-    validationError.value = onlineValidation.error
-    // Не очищаем ключ при ошибке сети — даём пользователю шанс
-    return onlineValidation
+    return validation
   }
 
   licenseKey.value = storedKey

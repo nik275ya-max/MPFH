@@ -10,7 +10,7 @@ import { useLicense } from './composables/useLicense'
 
 const { settings, updateSettings } = useSettings()
 const { replies, clearReplies, isComplete } = useRecording()
-const { isLicenseValid, isValidating, checkLicense } = useLicense()
+const { isLicenseValid, checkLicense } = useLicense()
 
 const isSettingsOpen = ref(false)
 const showLicenseModal = ref(false)
@@ -36,10 +36,10 @@ const openLicenseModal = () => {
 }
 
 // Проверка лицензии при запуске
-onMounted(async () => {
-  const result = await checkLicense()
+onMounted(() => {
+  const result = checkLicense()
   licenseChecked.value = true
-  
+
   // Если нет лицензии или ошибка валидации — показываем модалку
   if (!result.valid) {
     showLicenseModal.value = true
@@ -63,11 +63,11 @@ onMounted(async () => {
     </header>
 
     <main class="app-main">
-      <div v-if="!licenseChecked || isValidating" class="loading-state">
+      <div v-if="!licenseChecked" class="loading-state">
         <div class="loading-spinner"></div>
-        <p class="loading-text">Проверка лицензии...</p>
+        <p class="loading-text">Загрузка...</p>
       </div>
-      
+
       <div v-else-if="isAppLocked" class="locked-state">
         <div class="lock-icon">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
