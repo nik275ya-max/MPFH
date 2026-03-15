@@ -39,7 +39,7 @@
             Сохранить
           </button>
 
-          <div v-if="!isPWAInstalled" class="pwa-section">
+          <div v-if="showInstallButton" class="pwa-section">
             <div class="pwa-divider"></div>
             
             <button @click="handleInstall" class="install-button" :class="{ 'ios-only': isIOS }">
@@ -81,7 +81,7 @@ const emit = defineEmits<{
 const localSettings = ref<Settings>({ ...props.settings })
 
 // PWA установка
-const isPWAInstalled = ref(false)
+const showInstallButton = ref(false)
 const isIOS = ref(false)
 const deferredPrompt = ref<any>(null)
 
@@ -89,22 +89,31 @@ onMounted(() => {
   // Проверка iOS
   isIOS.value = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream
   
-  // Проверка, установлено ли PWA
+  // Проверка, запущено ли как PWA (standalone режим)
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
                        (window.navigator as any).standalone === true
-  isPWAInstalled.value = isStandalone
 
   // Слушаем событие установки для Android
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault()
     deferredPrompt.value = e
+    showInstallButton.value = true
   })
 
   // После установки
   window.addEventListener('appinstalled', () => {
-    isPWAInstalled.value = true
     deferredPrompt.value = null
+    showInstallButton.value = false
   })
+
+  // Показываем кнопку если:
+  // 1. Android и есть отложенный prompt
+  // 2. iOS и не запущено в standalone режиме
+  if (deferredPrompt.value) {
+    showInstallButton.value = true
+  } else if (isIOS.value && !isStandalone) {
+    showInstallButton.value = true
+  }
 })
 
 const handleInstall = async () => {
