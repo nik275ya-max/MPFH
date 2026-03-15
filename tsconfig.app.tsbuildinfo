@@ -1,0 +1,1 @@
+{"root":["./src/main.ts","./src/vite-env.d.ts","./src/composables/uselicense.ts","./src/composables/userecording.ts","./src/composables/usesettings.ts","./src/types/speech-recognition.d.ts","./src/app.vue","./src/components/licensemodal.vue","./src/components/qrcodedisplay.vue","./src/components/recordbutton.vue","./src/components/settingsmodal.vue"],"version":"5.9.3"}
