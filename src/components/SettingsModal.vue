@@ -38,6 +38,26 @@
           <button @click="saveSettings" class="save-button">
             Сохранить
           </button>
+
+          <div v-if="!isPWAInstalled" class="pwa-section">
+            <div class="pwa-divider"></div>
+            
+            <button @click="handleInstall" class="install-button" :class="{ 'ios-only': isIOS }">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18,15V18H15V20H18V23H20V20H23V18H20V15H18M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12C20,14.11 19.2,16 17.92,17.5L16.5,16.08L19,13.5H12V16.5L10.5,15L8,17.5V12H1V10H8V7.5L10.5,10L12,8.5V11.5H16.95L14.5,14L15.92,15.42C17.41,14.1 18.41,12.17 18.41,10A6.41,6.41 0 0,0 12,3.59A6.41,6.41 0 0,0 5.59,10H7.17A4.82,4.82 0 0,1 12,5.17A4.82,4.82 0 0,1 16.82,10H18.41A6.41,6.41 0 0,0 12,4Z"/>
+              </svg>
+              <span>Установить приложение</span>
+            </button>
+
+            <div v-if="isIOS" class="ios-instructions">
+              <p><strong>Для установки на iOS:</strong></p>
+              <ol>
+                <li>Нажмите кнопку <strong>"Поделиться"</strong> в Safari (квадрат со стрелкой)</li>
+                <li>Выберите <strong>"На экран «Домой»"</strong></li>
+                <li>Нажмите <strong>"Добавить"</strong></li>
+              </ol>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -45,7 +65,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import type { Settings } from '../composables/useSettings'
 
 const props = defineProps<{
@@ -59,6 +79,47 @@ const emit = defineEmits<{
 }>()
 
 const localSettings = ref<Settings>({ ...props.settings })
+
+// PWA установка
+const isPWAInstalled = ref(false)
+const isIOS = ref(false)
+const deferredPrompt = ref<any>(null)
+
+onMounted(() => {
+  // Проверка iOS
+  isIOS.value = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream
+  
+  // Проверка, установлено ли PWA
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                       (window.navigator as any).standalone === true
+  isPWAInstalled.value = isStandalone
+
+  // Слушаем событие установки для Android
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault()
+    deferredPrompt.value = e
+  })
+
+  // После установки
+  window.addEventListener('appinstalled', () => {
+    isPWAInstalled.value = true
+    deferredPrompt.value = null
+  })
+})
+
+const handleInstall = async () => {
+  if (isIOS.value) {
+    return // Для iOS показываем только инструкцию
+  }
+
+  if (deferredPrompt.value) {
+    deferredPrompt.value.prompt()
+    const { outcome } = await deferredPrompt.value.userChoice
+    if (outcome === 'accepted') {
+      deferredPrompt.value = null
+    }
+  }
+}
 
 watch(() => props.settings, (newSettings) => {
   localSettings.value = { ...newSettings }
@@ -225,6 +286,86 @@ const saveSettings = () => {
 .modal-enter-from .modal-content,
 .modal-leave-to .modal-content {
   transform: scale(0.9);
+}
+
+/* PWA section */
+.pwa-section {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+}
+
+.pwa-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin-bottom: 1rem;
+}
+
+.install-button {
+  width: 100%;
+  padding: 0.875rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  color: white;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.install-button svg {
+  width: 22px;
+  height: 22px;
+}
+
+.install-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.install-button:active {
+  transform: scale(0.98);
+}
+
+.install-button.ios-only {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.install-button.ios-only:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.ios-instructions {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(102, 126, 234, 0.1);
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.ios-instructions p {
+  margin: 0 0 0.5rem;
+}
+
+.ios-instructions ol {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.ios-instructions li {
+  margin-bottom: 0.25rem;
+}
+
+.ios-instructions strong {
+  color: white;
 }
 
 @media (max-width: 640px) {
