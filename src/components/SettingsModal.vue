@@ -12,6 +12,20 @@
         </div>
 
         <div class="modal-body">
+          <div v-if="licenseKey" class="license-display-section">
+            <div class="license-badge">
+              <div class="license-icon-wrapper">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+                </svg>
+              </div>
+              <div class="license-details">
+                <span class="license-key">{{ licenseKey }}</span>
+                <span class="license-expires">Действует до: {{ licenseExpiresFormatted }}</span>
+              </div>
+            </div>
+          </div>
+
           <div class="form-group">
             <label for="instruction">Инструкция к фокусу:</label>
             <textarea
@@ -67,6 +81,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue'
 import type { Settings } from '../composables/useSettings'
+import { useLicense } from '../composables/useLicense'
 
 const props = defineProps<{
   isOpen: boolean
@@ -79,6 +94,9 @@ const emit = defineEmits<{
 }>()
 
 const localSettings = ref<Settings>({ ...props.settings })
+
+// Лицензия
+const { licenseKey, licenseExpiresFormatted } = useLicense()
 
 // PWA установка
 const showInstallButton = ref(false)
@@ -375,6 +393,59 @@ const saveSettings = () => {
 
 .ios-instructions strong {
   color: white;
+}
+
+/* License display section */
+.license-display-section {
+  margin-bottom: 1.5rem;
+}
+
+.license-badge {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(102, 126, 234, 0.1);
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  border-radius: 12px;
+}
+
+.license-icon-wrapper {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.license-icon-wrapper svg {
+  width: 22px;
+  height: 22px;
+}
+
+.license-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.license-key {
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: white;
+  word-break: break-all;
+}
+
+.license-expires {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 @media (max-width: 640px) {
