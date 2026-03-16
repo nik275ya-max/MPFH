@@ -1,11 +1,13 @@
 /**
- * Скрипт для генерации лицензионных ключей MPFH
- * Формат: MPFH-XXXXXXXX-XXXX-XXXX (24 символа)
+ * Скрипт для генерации лицензионных ключей MPFH с датой истечения
+ * Формат: MPFH-YYYYMMDD-XXXX-XXXX (22 символа)
  * Структура:
  *   - MPFH- (префикс, 5 символов)
- *   - XXXXXXXX (8 случайных символов)
- *   - XXXX (4 символа контрольной суммы CRC16)
+ *   - YYYYMMDD (8 символов - дата истечения: год 4 цифры, месяц, день)
+ *   - XXXX (4 символа - контрольная сумма CRC16)
  *   - XXXX (4 случайных символа)
+ * 
+ * Пример: MPFH-20251231-A1B2-C3D4 (действует до 31.12.2025)
  */
 
 import crypto from 'crypto';
@@ -50,12 +52,10 @@ function crc16(data) {
 }
 
 /**
- * Преобразование CRC16 в 4-символьную строку (base36)
+ * Преобразование CRC16 в 4-символьную строку (hex)
  */
 function crcToChecksum(crc) {
-  // CRC16 = 16 бит = 4 символа base36 (6 бит на символ = 24 бита, берём нижние)
-  const hex = crc.toString(16).padStart(4, '0').toUpperCase();
-  return hex;
+  return crc.toString(16).padStart(4, '0').toUpperCase();
 }
 
 /**
@@ -68,38 +68,126 @@ function verifyChecksum(randomPart, checksum) {
 }
 
 /**
- * Генерация лицензионного ключа
+ * Проверка формата даты YYYYMMDD
  */
-function generateKey() {
-  const randomPart = randomString(8);
-  const crc = crc16(randomPart);
+function isValidDate(dateStr) {
+  if (!/^\d{8}$/.test(dateStr)) return false;
+  
+  const year = parseInt(dateStr.substring(0, 4), 10);
+  const month = parseInt(dateStr.substring(4, 6), 10);
+  const day = parseInt(dateStr.substring(6, 8), 10);
+  
+  if (month < 1 || month > 12) return false;
+  if (day < 1 || day > 31) return false;
+  
+  // Проверка реального количества дней в месяце
+  const date = new Date(year, month - 1, day);
+  return date.getFullYear() === year && 
+         date.getMonth() === month - 1 && 
+         date.getDate() === day;
+}
+
+/**
+ * Форматирование даты из YYYYMMDD в читаемый вид
+ */
+function formatDate(dateStr) {
+  const year = dateStr.substring(0, 4);
+  const month = dateStr.substring(4, 6);
+  const day = dateStr.substring(6, 8);
+  return `${day}.${month}.${year}`;
+}
+
+/**
+ * Генерация лицензионного ключа с датой истечения
+ * @param {string} expiresDate - Дата истечения в формате YYYY-MM-DD
+ */
+function generateKey(expiresDate) {
+  // Преобразование даты из YYYY-MM-DD в YYYYMMDD
+  const datePart = expiresDate.replace(/-/g, '');
+  
+  if (!isValidDate(datePart)) {
+    throw new Error(`Неверный формат даты: ${expiresDate}. Ожидался YYYY-MM-DD`);
+  }
+  
+  const crc = crc16(datePart);
   const checksum = crcToChecksum(crc);
   const suffix = randomString(4);
 
-  return `${PREFIX}${randomPart}-${checksum}-${suffix}`;
+  return `${PREFIX}${datePart}-${checksum}-${suffix}`;
 }
 
 /**
  * Валидация лицензионного ключа
+ * @param {string} key - Ключ для проверки
+ * @param {boolean} checkExpiration - Проверять ли дату истечения
  */
-function validateKey(key) {
+function validateKey(key, checkExpiration = true) {
   // Проверка формата
-  const formatRegex = /^MPFH-[A-Z0-9]{8}-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
-  if (!formatRegex.test(key)) {
-    return { valid: false, error: 'Неверный формат ключа' };
+  const formatRegex = /^MPFH-(\d{8})-([A-Z0-9]{4})-([A-Z0-9]{4})$/;
+  const match = key.match(formatRegex);
+  
+  if (!match) {
+    return { 
+      valid: false, 
+      error: 'Неверный формат ключа. Ожидался MPFH-YYYYMMDD-XXXX-XXXX',
+      expiresDate: null,
+      expiresFormatted: null
+    };
   }
 
-  // Извлечение частей ключа
-  const parts = key.split('-');
-  const randomPart = parts[1]; // 8 символов
-  const checksum = parts[2];   // 4 символа (контрольная сумма)
+  const datePart = match[1]; // YYYYMMDD
+  const checksum = match[2]; // 4 символа контрольной суммы
+
+  // Проверка формата даты
+  if (!isValidDate(datePart)) {
+    return { 
+      valid: false, 
+      error: 'Неверная дата в ключе',
+      expiresDate: null,
+      expiresFormatted: null
+    };
+  }
 
   // Проверка контрольной суммы
-  if (!verifyChecksum(randomPart, checksum)) {
-    return { valid: false, error: 'Неверная контрольная сумма' };
+  if (!verifyChecksum(datePart, checksum)) {
+    return { 
+      valid: false, 
+      error: 'Неверная контрольная сумма',
+      expiresDate: null,
+      expiresFormatted: null
+    };
   }
 
-  return { valid: true, error: null };
+  // Проверка даты истечения
+  const expiresFormatted = formatDate(datePart);
+  
+  if (checkExpiration) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const year = parseInt(datePart.substring(0, 4), 10);
+    const month = parseInt(datePart.substring(4, 6), 10);
+    const day = parseInt(datePart.substring(6, 8), 10);
+    const expiresDate = new Date(year, month - 1, day);
+    
+    if (expiresDate < today) {
+      return { 
+        valid: false, 
+        error: `Срок действия ключа истёк ${expiresFormatted}`,
+        expiresDate: datePart,
+        expiresFormatted: expiresFormatted,
+        expired: true
+      };
+    }
+  }
+
+  return { 
+    valid: true, 
+    error: null,
+    expiresDate: datePart,
+    expiresFormatted: expiresFormatted,
+    expired: false
+  };
 }
 
 // Основной блок
@@ -108,30 +196,66 @@ const args = process.argv.slice(2);
 if (args[0] === '--validate' && args[1]) {
   // Режим валидации
   const key = args[1].toUpperCase();
-  const result = validateKey(key);
+  const result = validateKey(key, true);
   if (result.valid) {
-    console.log(`✓ Ключ валиден: ${key}`);
+    console.log(`✓ Ключ валиден`);
+    console.log(`  Действует до: ${result.expiresFormatted}`);
+    console.log(`  Ключ: ${key}`);
   } else {
     console.log(`✗ Ошибка: ${result.error}`);
+    if (result.expired) {
+      console.log(`  Истёк: ${result.expiresFormatted}`);
+    }
     process.exit(1);
   }
-} else if (args[0] === '--batch' && args[1]) {
+} else if (args[0] === '--batch' && args[1] && args[2]) {
   // Генерация нескольких ключей
   const count = parseInt(args[1], 10);
-  console.log(`Генерация ${count} ключей:\n`);
+  const expiresDate = args[2];
+  console.log(`Генерация ${count} ключей с датой истечения ${expiresDate}:\n`);
   for (let i = 0; i < count; i++) {
-    const key = generateKey();
-    console.log(`${i + 1}. ${key}`);
+    try {
+      const key = generateKey(expiresDate);
+      console.log(`${i + 1}. ${key}`);
+    } catch (error) {
+      console.log(`${i + 1}. Ошибка: ${error.message}`);
+    }
+  }
+} else if (args[0] === '--expires' && args[1]) {
+  // Генерация ключа с датой истечения
+  const expiresDate = args[1];
+  try {
+    const key = generateKey(expiresDate);
+    const validation = validateKey(key, false);
+    console.log('Сгенерированный лицензионный ключ:');
+    console.log(`\n${key}\n`);
+    console.log(`Действует до: ${validation.expiresFormatted}`);
+    console.log(`Проверка: ${validation.valid ? '✓ пройдена' : '✗ не пройдена'}`);
+  } catch (error) {
+    console.error(`Ошибка: ${error.message}`);
+    process.exit(1);
   }
 } else {
-  // Генерация одного ключа
-  const key = generateKey();
-  console.log('Сгенерированный лицензионный ключ:');
-  console.log(`\n${key}\n`);
-
-  // Демонстрация валидации
-  const validation = validateKey(key);
-  console.log(`Проверка: ${validation.valid ? '✓ пройдена' : '✗ не пройдена'}`);
+  // Генерация ключа на 1 год вперёд по умолчанию
+  const today = new Date();
+  const nextYear = new Date(today.getFullYear() + 1, today.getMonth(), today.getDate());
+  const expiresDate = nextYear.toISOString().split('T')[0];
+  
+  try {
+    const key = generateKey(expiresDate);
+    const validation = validateKey(key, false);
+    console.log('Сгенерированный лицензионный ключ (по умолчанию на 1 год):');
+    console.log(`\n${key}\n`);
+    console.log(`Действует до: ${validation.expiresFormatted}`);
+    console.log(`Проверка: ${validation.valid ? '✓ пройдена' : '✗ не пройдена'}`);
+    console.log(`\nДля генерации с другой датой используйте:`);
+    console.log(`  node scripts/generate-key.js --expires YYYY-MM-DD`);
+    console.log(`\nПример:`);
+    console.log(`  node scripts/generate-key.js --expires 2025-12-31`);
+  } catch (error) {
+    console.error(`Ошибка: ${error.message}`);
+    process.exit(1);
+  }
 }
 
 export { generateKey, validateKey, crc16 };

@@ -11,27 +11,36 @@ const emit = defineEmits<{
   licensed: []
 }>()
 
-const { setLicenseKey } = useLicense()
+const { setLicenseKey, validateKeyFormat } = useLicense()
 
 const licenseInput = ref('')
 const localError = ref<string | null>(null)
+const expiresInfo = ref<string | null>(null)
 
 watch(() => props.isOpen, (isOpen) => {
   if (!isOpen) {
     licenseInput.value = ''
     localError.value = null
+    expiresInfo.value = null
   }
 })
 
 const handleSubmit = () => {
   localError.value = null
+  expiresInfo.value = null
 
   if (!licenseInput.value.trim()) {
     localError.value = 'Введите лицензионный ключ'
     return
   }
 
-  // Локальная проверка формата и контрольной суммы
+  // Предварительная проверка для отображения даты
+  const previewCheck = validateKeyFormat(licenseInput.value, false)
+  if (previewCheck.valid && previewCheck.expiresFormatted) {
+    expiresInfo.value = `Действует до: ${previewCheck.expiresFormatted}`
+  }
+
+  // Локальная проверка формата, контрольной суммы и даты
   const result = setLicenseKey(licenseInput.value)
 
   if (result.valid) {
@@ -43,20 +52,20 @@ const handleSubmit = () => {
 }
 
 const handleInput = () => {
-  // Автоформатирование ввода: MPFH-XXXX-XXXX-XXXX
+  // Автоформатирование ввода: MPFH-YYYYMMDD-XXXX-XXXX
   let value = licenseInput.value.toUpperCase().replace(/[^A-Z0-9-]/g, '')
-  
+
   // Удаляем всё кроме MPFH в начале
   if (!value.startsWith('MPFH')) {
     value = value.replace(/^(?!MPFH).*/, '')
   }
-  
+
   // Добавляем дефисы автоматически
   let raw = value.replace(/-/g, '')
   if (raw.length > 4) {
     raw = raw.slice(0, 20) // Максимум 20 символов после MPFH
   }
-  
+
   let formatted = 'MPFH'
   if (raw.length > 4) {
     formatted += '-' + raw.slice(4, 12)
@@ -69,7 +78,7 @@ const handleInput = () => {
   if (raw.length > 16) {
     formatted += '-' + raw.slice(16, 20)
   }
-  
+
   licenseInput.value = formatted
 }
 </script>
@@ -98,12 +107,19 @@ const handleInput = () => {
               @keyup.enter="handleSubmit"
               type="text"
               class="form-input license-input"
-              placeholder="MPFH-XXXX-XXXX-XXXX"
+              placeholder="MPFH-YYYYMMDD-XXXX-XXXX"
               autofocus
             />
             <p class="input-hint">
-              Формат: MPFH-XXXXXXXX-XXXX-XXXX (24 символа)
+              Формат: MPFH-YYYYMMDD-XXXX-XXXX (год/месяц/день истечения)
             </p>
+          </div>
+
+          <div v-if="expiresInfo" class="expires-info">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+            <span>{{ expiresInfo }}</span>
           </div>
 
           <div v-if="localError" class="error-message">
@@ -235,6 +251,26 @@ const handleInput = () => {
   color: rgba(255, 255, 255, 0.5);
   font-size: 0.85rem;
   text-align: center;
+}
+
+.expires-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: rgba(102, 126, 234, 0.15);
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  border-radius: 10px;
+  color: #667eea;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+}
+
+.expires-info svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
 }
 
 .error-message {
