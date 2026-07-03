@@ -1,0 +1,42 @@
+openapi: '3.0.0'
+info:
+  title: MPFH API
+  version: '1.0'
+servers:
+  - url: https://d5dn894hrib988v7pucu.kr8f6hld.apigw.yandexcloud.net
+paths:
+  /save:
+    post:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: d4ehvminjq0i9fa27bu8
+        service_account_id: ajeir7m9b18fukklpb82
+      operationId: saveData
+      summary: Save replies data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                instruction:
+                  type: string
+                replies:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Data saved successfully
+  /:
+    get:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: d4ehvminjq0i9fa27bu8
+        service_account_id: ajeir7m9b18fukklpb82
+      operationId: getPage
+      summary: Get HTML page with replies
+      responses:
+        '200':
+          description: HTML page

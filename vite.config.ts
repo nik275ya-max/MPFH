@@ -11,7 +11,7 @@ export default defineConfig({
       manifest: {
         name: 'Master Prediction Free Hand',
         short_name: 'MPF Hand',
-        description: 'Voice recording app with QR code generation',
+        description: 'Voice recording app for Master Prediction Free Hand',
         theme_color: '#667eea',
         background_color: '#0f0c29',
         display: 'standalone',

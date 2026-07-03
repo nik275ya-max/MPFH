@@ -16,7 +16,7 @@ const isSettingsOpen = ref(false)
 const showLicenseModal = ref(false)
 const licenseChecked = ref(false)
 
-const showQRCode = computed(() => isComplete.value(settings.value.repliesCount))
+const showResult = computed(() => isComplete.value(settings.value.repliesCount))
 const isAppLocked = computed(() => !isLicenseValid.value && !showLicenseModal.value)
 
 const handleReset = () => {
@@ -83,7 +83,7 @@ onMounted(() => {
       
       <Transition name="fade" mode="out-in">
         <RecordButton
-          v-if="!showQRCode && !isAppLocked"
+          v-if="!showResult && !isAppLocked"
           :max-replies="settings.repliesCount"
         />
         <QRCodeDisplay
