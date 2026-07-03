@@ -4,6 +4,19 @@ info:
   version: '1.0'
 servers:
   - url: https://d5dn894hrib988v7pucu.kr8f6hld.apigw.yandexcloud.net
+x-yc-apigateway:
+  cors:
+    origin:
+      - '*'
+    method:
+      - GET
+      - POST
+      - OPTIONS
+    allowedHeaders:
+      - Content-Type
+      - Authorization
+      - X-Requested-With
+    maxAge: 3600
 paths:
   /save:
     post:
