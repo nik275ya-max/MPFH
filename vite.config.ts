@@ -2,6 +2,8 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
 
+const BUILD_VERSION = Date.now().toString()
+
 export default defineConfig({
   plugins: [
     vue(),
@@ -16,7 +18,7 @@ export default defineConfig({
         background_color: '#0f0c29',
         display: 'standalone',
         orientation: 'portrait',
-        start_url: '/',
+        start_url: `/?v=${BUILD_VERSION}`,
         icons: [
           {
             src: '/icon.svg',
