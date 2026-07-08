@@ -8,15 +8,11 @@ BUCKET_NAME = os.environ.get('BUCKET_NAME', 'magic-show-data')
 OBJECT_KEY_DEFAULT = 'data.json'
 OBJECT_KEY_PREFIX = 'data/'
 PAGE_TITLE = os.environ.get('PAGE_TITLE', 'Инструкция')
-AWS_KEY = os.environ.get('AWS_ACCESS_KEY_ID', '')
-AWS_SECRET = os.environ.get('AWS_SECRET_ACCESS_KEY', '')
 
 s3 = boto3.client(
     's3',
     endpoint_url='https://storage.yandexcloud.net',
     region_name='ru-central1',
-    aws_access_key_id=AWS_KEY,
-    aws_secret_access_key=AWS_SECRET,
 )
 
 LICENSE_REGEX = r'^MPFH-\d{8}-[A-Z0-9]{4}-[A-Z0-9]{4}$'
