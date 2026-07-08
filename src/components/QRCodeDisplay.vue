@@ -65,11 +65,14 @@ const PAGE_URL = import.meta.env.VITE_API_URL || 'https://YOUR_API_GATEWAY_URL'
 const status = ref<'sending' | 'ready' | 'error'>('sending')
 const errorMessage = ref('')
 const copied = ref(false)
+
+const getLicense = () => localStorage.getItem('mpfh-license-key') || ''
 const pageUrl = ref(PAGE_URL)
 
 const sendData = async () => {
   status.value = 'sending'
   errorMessage.value = ''
+  const license = getLicense()
 
   try {
     const response = await fetch(`${PAGE_URL}/save`, {
@@ -80,6 +83,7 @@ const sendData = async () => {
       body: JSON.stringify({
         instruction: props.instruction,
         replies: props.replies,
+        license: license,
       }),
     })
 
@@ -87,6 +91,9 @@ const sendData = async () => {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`)
     }
 
+    pageUrl.value = license
+      ? `${PAGE_URL}/?license=${encodeURIComponent(license)}`
+      : PAGE_URL
     status.value = 'ready'
   } catch (error) {
     status.value = 'error'

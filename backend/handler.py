@@ -1,11 +1,13 @@
 import json
 import os
+import re
 import boto3
 from botocore.exceptions import ClientError
 
 BUCKET_NAME = os.environ.get('BUCKET_NAME', 'magic-show-data')
-OBJECT_KEY = 'data.json'
-PAGE_TITLE = os.environ.get('PAGE_TITLE', 'MPFH — Ответы зрителей')
+OBJECT_KEY_DEFAULT = 'data.json'
+OBJECT_KEY_PREFIX = 'data/'
+PAGE_TITLE = os.environ.get('PAGE_TITLE', 'Инструкция')
 AWS_KEY = os.environ.get('AWS_ACCESS_KEY_ID', '')
 AWS_SECRET = os.environ.get('AWS_SECRET_ACCESS_KEY', '')
 
@@ -17,12 +19,23 @@ s3 = boto3.client(
     aws_secret_access_key=AWS_SECRET,
 )
 
+LICENSE_REGEX = r'^MPFH-\d{8}-[A-Z0-9]{4}-[A-Z0-9]{4}$'
+
+
+def get_object_key(license_key):
+    if license_key and re.match(LICENSE_REGEX, license_key):
+        return f'{OBJECT_KEY_PREFIX}{license_key}.json'
+    return OBJECT_KEY_DEFAULT
+
+
 def save_data(data):
     try:
+        license_key = data.get('license', '')
+        object_key = get_object_key(license_key)
         body = json.dumps(data, ensure_ascii=False, indent=2)
         s3.put_object(
             Bucket=BUCKET_NAME,
-            Key=OBJECT_KEY,
+            Key=object_key,
             Body=body.encode('utf-8'),
             ContentType='application/json; charset=utf-8',
             StorageClass='STANDARD',
@@ -33,9 +46,10 @@ def save_data(data):
         raise
 
 
-def load_data():
+def load_data(object_key=None):
     try:
-        response = s3.get_object(Bucket=BUCKET_NAME, Key=OBJECT_KEY)
+        key = object_key or OBJECT_KEY_DEFAULT
+        response = s3.get_object(Bucket=BUCKET_NAME, Key=key)
         body = response['Body'].read().decode('utf-8')
         return json.loads(body)
     except ClientError as e:
@@ -183,7 +197,6 @@ def generate_html(data):
 </head>
 <body>
   <div class="container">
-    <h1>Ответы зрителей</h1>
     <div class="instruction">{instruction}</div>
     <ul class="replies-list">
       {items_html if replies else '<li class="empty-state">Ответов пока нет</li>'}
@@ -219,6 +232,17 @@ def handler(event, context):
                     'body': json.dumps({'error': 'Invalid data: "replies" field is required'}, ensure_ascii=False),
                 }
 
+            license_key = data.get('license', '')
+            if license_key and not re.match(LICENSE_REGEX, license_key):
+                return {
+                    'statusCode': 400,
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*',
+                    },
+                    'body': json.dumps({'error': 'Invalid license key format'}, ensure_ascii=False),
+                }
+
             save_data(data)
 
             return {
@@ -233,7 +257,10 @@ def handler(event, context):
             }
 
         elif http_method == 'GET':
-            data = load_data()
+            query_params = event.get('queryStringParameters') or {}
+            license_key = query_params.get('license', '')
+            object_key = get_object_key(license_key)
+            data = load_data(object_key)
 
             if data is None:
                 html = generate_html({'instruction': 'Ожидание данных...', 'replies': []})

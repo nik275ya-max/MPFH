@@ -4,19 +4,6 @@ info:
   version: '1.0'
 servers:
   - url: https://d5dn894hrib988v7pucu.kr8f6hld.apigw.yandexcloud.net
-x-yc-apigateway:
-  cors:
-    origin:
-      - '*'
-    method:
-      - GET
-      - POST
-      - OPTIONS
-    allowedHeaders:
-      - Content-Type
-      - Authorization
-      - X-Requested-With
-    maxAge: 3600
 paths:
   /save:
     post:
@@ -32,6 +19,8 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - replies
               properties:
                 instruction:
                   type: string
@@ -39,9 +28,22 @@ paths:
                   type: array
                   items:
                     type: string
+                license:
+                  type: string
+                  description: "License key MPFH-YYYYMMDD-XXXX-XXXX used as user identifier"
       responses:
         '200':
           description: Data saved successfully
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: d4ehvminjq0i9fa27bu8
+        service_account_id: ajeir7m9b18fukklpb82
+      operationId: optionsSave
+      summary: CORS preflight
+      responses:
+        '200':
+          description: CORS headers
   /:
     get:
       x-yc-apigateway-integration:
@@ -50,6 +52,22 @@ paths:
         service_account_id: ajeir7m9b18fukklpb82
       operationId: getPage
       summary: Get HTML page with replies
+      parameters:
+        - name: license
+          in: query
+          schema:
+            type: string
+          description: "License key to load user-specific data"
       responses:
         '200':
           description: HTML page
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: d4ehvminjq0i9fa27bu8
+        service_account_id: ajeir7m9b18fukklpb82
+      operationId: optionsGet
+      summary: CORS preflight
+      responses:
+        '200':
+          description: CORS headers
