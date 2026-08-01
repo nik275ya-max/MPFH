@@ -58,7 +58,7 @@
               v-model.number="localSettings.uiScale"
               type="range"
               min="0.5"
-              max="1.5"
+              max="3"
               step="0.05"
               class="form-input range-input"
             />

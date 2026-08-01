@@ -53,51 +53,53 @@ onMounted(() => {
 
 <template>
   <div class="app-container">
-    <header class="app-header" :class="{ locked: isAppLocked }">
-      <h1 class="app-title">Master Prediction Free Hand</h1>
-      <button
-        @click="isSettingsOpen = true"
-        class="settings-button"
-        :disabled="isAppLocked"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
-        </svg>
-      </button>
-    </header>
-
-    <main class="app-main" :style="mainContentStyle">
-      <div v-if="!licenseChecked" class="loading-state">
-        <div class="loading-spinner"></div>
-        <p class="loading-text">Загрузка...</p>
-      </div>
-
-      <div v-else-if="isAppLocked" class="locked-state">
-        <div class="lock-icon">
+    <div class="app-scene" :style="mainContentStyle">
+      <header class="app-header" :class="{ locked: isAppLocked }">
+        <h1 class="app-title">Master Prediction Free Hand</h1>
+        <button
+          @click="isSettingsOpen = true"
+          class="settings-button"
+          :disabled="isAppLocked"
+        >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+            <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
           </svg>
-        </div>
-        <h2>Требуется активация</h2>
-        <p>Введите лицензионный ключ для продолжения работы</p>
-        <button @click="openLicenseModal" class="activate-btn">
-          Ввести ключ
         </button>
-      </div>
-      
-      <Transition name="fade" mode="out-in">
-        <RecordButton
-          v-if="!showResult && !isAppLocked"
-          :max-replies="settings.repliesCount"
-        />
-        <QRCodeDisplay
-          v-else-if="!isAppLocked"
-          :instruction="settings.instruction"
-          :replies="replies"
-          @reset="handleReset"
-        />
-      </Transition>
-    </main>
+      </header>
+
+      <main class="app-main">
+        <div v-if="!licenseChecked" class="loading-state">
+          <div class="loading-spinner"></div>
+          <p class="loading-text">Загрузка...</p>
+        </div>
+
+        <div v-else-if="isAppLocked" class="locked-state">
+          <div class="lock-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+            </svg>
+          </div>
+          <h2>Требуется активация</h2>
+          <p>Введите лицензионный ключ для продолжения работы</p>
+          <button @click="openLicenseModal" class="activate-btn">
+            Ввести ключ
+          </button>
+        </div>
+
+        <Transition name="fade" mode="out-in">
+          <RecordButton
+            v-if="!showResult && !isAppLocked"
+            :max-replies="settings.repliesCount"
+          />
+          <QRCodeDisplay
+            v-else-if="!isAppLocked"
+            :instruction="settings.instruction"
+            :replies="replies"
+            @reset="handleReset"
+          />
+        </Transition>
+      </main>
+    </div>
 
     <SettingsModal
       :is-open="isSettingsOpen"
@@ -121,6 +123,15 @@ onMounted(() => {
   height: 100vh;
   width: 100vw;
   overflow: hidden;
+}
+
+.app-scene {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  transform-origin: center center;
+  transition: transform 0.3s ease;
 }
 
 .app-header {
@@ -185,8 +196,6 @@ onMounted(() => {
   justify-content: center;
   overflow: hidden;
   position: relative;
-  transform-origin: center center;
-  transition: transform 0.3s ease;
 }
 
 .fade-enter-active,
