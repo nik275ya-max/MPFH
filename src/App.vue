@@ -19,7 +19,7 @@ const licenseChecked = ref(false)
 const showResult = computed(() => isComplete.value(settings.value.repliesCount))
 const isAppLocked = computed(() => !isLicenseValid.value && !showLicenseModal.value)
 
-const mainContentStyle = computed(() => ({
+const scaleStyle = computed(() => ({
   transform: `scale(${settings.value.uiScale})`
 }))
 
@@ -53,8 +53,8 @@ onMounted(() => {
 
 <template>
   <div class="app-container">
-    <div class="app-scene" :style="mainContentStyle">
-      <header class="app-header" :class="{ locked: isAppLocked }">
+    <div class="app-scene">
+      <header class="app-header" :class="{ locked: isAppLocked }" :style="scaleStyle">
         <h1 class="app-title">Master Prediction Free Hand</h1>
         <button
           @click="isSettingsOpen = true"
@@ -67,7 +67,7 @@ onMounted(() => {
         </button>
       </header>
 
-      <main class="app-main">
+      <main class="app-main" :style="scaleStyle">
         <div v-if="!licenseChecked" class="loading-state">
           <div class="loading-spinner"></div>
           <p class="loading-text">Загрузка...</p>
@@ -130,8 +130,6 @@ onMounted(() => {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  transform-origin: center center;
-  transition: transform 0.3s ease;
 }
 
 .app-header {
@@ -143,6 +141,8 @@ onMounted(() => {
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   z-index: 100;
+  transform-origin: top center;
+  transition: transform 0.3s ease;
 }
 
 .app-title {
@@ -196,6 +196,8 @@ onMounted(() => {
   justify-content: center;
   overflow: hidden;
   position: relative;
+  transform-origin: center center;
+  transition: transform 0.3s ease;
 }
 
 .fade-enter-active,
