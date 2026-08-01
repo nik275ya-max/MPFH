@@ -19,6 +19,10 @@ const licenseChecked = ref(false)
 const showResult = computed(() => isComplete.value(settings.value.repliesCount))
 const isAppLocked = computed(() => !isLicenseValid.value && !showLicenseModal.value)
 
+const mainContentStyle = computed(() => ({
+  transform: `scale(${settings.value.uiScale})`
+}))
+
 const handleReset = () => {
   clearReplies()
 }
@@ -62,7 +66,7 @@ onMounted(() => {
       </button>
     </header>
 
-    <main class="app-main">
+    <main class="app-main" :style="mainContentStyle">
       <div v-if="!licenseChecked" class="loading-state">
         <div class="loading-spinner"></div>
         <p class="loading-text">Загрузка...</p>
@@ -181,6 +185,8 @@ onMounted(() => {
   justify-content: center;
   overflow: hidden;
   position: relative;
+  transform-origin: center center;
+  transition: transform 0.3s ease;
 }
 
 .fade-enter-active,

@@ -3,13 +3,15 @@ import { ref, watch } from 'vue'
 export interface Settings {
   instruction: string
   repliesCount: number
+  uiScale: number
 }
 
 const STORAGE_KEY = 'master-prediction-settings'
 
 const defaultSettings: Settings = {
   instruction: 'Инструкция к фокусу:',
-  repliesCount: 4
+  repliesCount: 4,
+  uiScale: 1
 }
 
 const settings = ref<Settings>(loadSettings())

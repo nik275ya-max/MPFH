@@ -49,6 +49,22 @@
             />
           </div>
 
+          <div class="form-group">
+            <label for="uiScale">
+              Размер объектов: {{ Math.round(localSettings.uiScale * 100) }}%
+            </label>
+            <input
+              id="uiScale"
+              v-model.number="localSettings.uiScale"
+              type="range"
+              min="0.5"
+              max="1.5"
+              step="0.05"
+              class="form-input range-input"
+            />
+            <p class="input-hint">Настройте под размер и разрешение вашего экрана</p>
+          </div>
+
           <button @click="saveSettings" class="save-button">
             Сохранить
           </button>
@@ -253,6 +269,63 @@ const saveSettings = () => {
   background: rgba(255, 255, 255, 0.08);
   border-color: #667eea;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.range-input {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 6px;
+  padding: 0;
+  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.range-input:focus {
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.range-input::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.range-input::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+.range-input::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.range-input::-moz-range-thumb:hover {
+  transform: scale(1.15);
+}
+
+.range-input::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.input-hint {
+  margin-top: 0.5rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.85rem;
 }
 
 .save-button {
