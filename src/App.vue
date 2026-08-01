@@ -19,8 +19,8 @@ const licenseChecked = ref(false)
 const showResult = computed(() => isComplete.value(settings.value.repliesCount))
 const isAppLocked = computed(() => !isLicenseValid.value && !showLicenseModal.value)
 
-const scaleStyle = computed(() => ({
-  transform: `scale(${settings.value.uiScale})`
+const containerStyle = computed(() => ({
+  '--ui-scale': settings.value.uiScale
 }))
 
 const handleReset = () => {
@@ -52,9 +52,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="app-container">
+  <div class="app-container" :style="containerStyle">
     <div class="app-scene">
-      <header class="app-header" :class="{ locked: isAppLocked }" :style="scaleStyle">
+      <header class="app-header" :class="{ locked: isAppLocked }">
         <h1 class="app-title">Master Prediction Free Hand</h1>
         <button
           @click="isSettingsOpen = true"
@@ -67,7 +67,7 @@ onMounted(() => {
         </button>
       </header>
 
-      <main class="app-main" :style="scaleStyle">
+      <main class="app-main">
         <div v-if="!licenseChecked" class="loading-state">
           <div class="loading-spinner"></div>
           <p class="loading-text">Загрузка...</p>
@@ -130,23 +130,22 @@ onMounted(() => {
   min-height: 0;
   display: flex;
   flex-direction: column;
+  font-size: calc(1rem * var(--ui-scale, 1));
 }
 
 .app-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 1.5rem;
+  padding: calc(1rem * var(--ui-scale, 1)) calc(1.5rem * var(--ui-scale, 1));
   background: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   z-index: 100;
-  transform-origin: top center;
-  transition: transform 0.3s ease;
 }
 
 .app-title {
-  font-size: 1.2rem;
+  font-size: calc(1.2rem * var(--ui-scale, 1));
   font-weight: 700;
   margin: 0;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -156,18 +155,23 @@ onMounted(() => {
 }
 
 .settings-button {
-  width: 40px;
-  height: 40px;
-  padding: 0.5rem;
+  width: calc(40px * var(--ui-scale, 1));
+  height: calc(40px * var(--ui-scale, 1));
+  padding: calc(0.5rem * var(--ui-scale, 1));
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+  border-radius: calc(10px * var(--ui-scale, 1));
   color: white;
   cursor: pointer;
   transition: all 0.3s;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.settings-button svg {
+  width: calc(24px * var(--ui-scale, 1));
+  height: calc(24px * var(--ui-scale, 1));
 }
 
 .settings-button:hover {
@@ -196,8 +200,6 @@ onMounted(() => {
   justify-content: center;
   overflow: hidden;
   position: relative;
-  transform-origin: center center;
-  transition: transform 0.3s ease;
 }
 
 .fade-enter-active,
@@ -220,9 +222,9 @@ onMounted(() => {
 }
 
 .loading-spinner {
-  width: 48px;
-  height: 48px;
-  border: 3px solid rgba(255, 255, 255, 0.2);
+  width: calc(48px * var(--ui-scale, 1));
+  height: calc(48px * var(--ui-scale, 1));
+  border: calc(3px * var(--ui-scale, 1)) solid rgba(255, 255, 255, 0.2);
   border-top-color: #667eea;
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -236,7 +238,7 @@ onMounted(() => {
 
 .loading-text {
   color: rgba(255, 255, 255, 0.7);
-  font-size: 1rem;
+  font-size: calc(1rem * var(--ui-scale, 1));
 }
 
 /* Locked state */
@@ -251,42 +253,42 @@ onMounted(() => {
 }
 
 .lock-icon {
-  width: 80px;
-  height: 80px;
+  width: calc(80px * var(--ui-scale, 1));
+  height: calc(80px * var(--ui-scale, 1));
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 20px;
+  border-radius: calc(20px * var(--ui-scale, 1));
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  margin-bottom: 0.5rem;
+  margin-bottom: calc(0.5rem * var(--ui-scale, 1));
 }
 
 .lock-icon svg {
-  width: 48px;
-  height: 48px;
+  width: calc(48px * var(--ui-scale, 1));
+  height: calc(48px * var(--ui-scale, 1));
 }
 
 .locked-state h2 {
   color: white;
-  font-size: 1.5rem;
+  font-size: calc(1.5rem * var(--ui-scale, 1));
   margin: 0;
 }
 
 .locked-state p {
   color: rgba(255, 255, 255, 0.6);
-  font-size: 0.95rem;
+  font-size: calc(0.95rem * var(--ui-scale, 1));
   margin: 0;
 }
 
 .activate-btn {
-  margin-top: 1rem;
-  padding: 0.75rem 2rem;
+  margin-top: calc(1rem * var(--ui-scale, 1));
+  padding: calc(0.75rem * var(--ui-scale, 1)) calc(2rem * var(--ui-scale, 1));
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
-  border-radius: 10px;
+  border-radius: calc(10px * var(--ui-scale, 1));
   color: white;
-  font-size: 1rem;
+  font-size: calc(1rem * var(--ui-scale, 1));
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
@@ -303,16 +305,21 @@ onMounted(() => {
 
 @media (max-width: 640px) {
   .app-title {
-    font-size: 1rem;
+    font-size: calc(1rem * var(--ui-scale, 1));
   }
 
   .app-header {
-    padding: 0.75rem 1rem;
+    padding: calc(0.75rem * var(--ui-scale, 1)) calc(1rem * var(--ui-scale, 1));
   }
 
   .settings-button {
-    width: 36px;
-    height: 36px;
+    width: calc(36px * var(--ui-scale, 1));
+    height: calc(36px * var(--ui-scale, 1));
+  }
+
+  .settings-button svg {
+    width: calc(22px * var(--ui-scale, 1));
+    height: calc(22px * var(--ui-scale, 1));
   }
 }
 </style>

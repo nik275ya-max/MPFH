@@ -55,10 +55,10 @@ const toggleRecording = () => {
 
 .record-button {
   position: relative;
-  width: min(80vw, 80vh);
-  height: min(80vw, 80vh);
-  max-width: 400px;
-  max-height: 400px;
+  width: calc(min(80vw, 80vh) * var(--ui-scale, 1));
+  height: calc(min(80vw, 80vh) * var(--ui-scale, 1));
+  max-width: calc(400px * var(--ui-scale, 1));
+  max-height: calc(400px * var(--ui-scale, 1));
   border-radius: 50%;
   border: none;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -87,10 +87,10 @@ const toggleRecording = () => {
 
 .glow-effect {
   position: absolute;
-  top: -20px;
-  left: -20px;
-  right: -20px;
-  bottom: -20px;
+  top: calc(-20px * var(--ui-scale, 1));
+  left: calc(-20px * var(--ui-scale, 1));
+  right: calc(-20px * var(--ui-scale, 1));
+  bottom: calc(-20px * var(--ui-scale, 1));
   border-radius: 50%;
   background: inherit;
   filter: blur(30px);
@@ -115,13 +115,13 @@ const toggleRecording = () => {
   justify-content: center;
   height: 100%;
   color: white;
-  padding: 2rem;
+  padding: calc(2rem * var(--ui-scale, 1));
 }
 
 .mic-icon {
-  width: 80px;
-  height: 80px;
-  margin-bottom: 1.5rem;
+  width: calc(80px * var(--ui-scale, 1));
+  height: calc(80px * var(--ui-scale, 1));
+  margin-bottom: calc(1.5rem * var(--ui-scale, 1));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -134,9 +134,9 @@ const toggleRecording = () => {
 }
 
 .pulse-ring {
-  width: 60px;
-  height: 60px;
-  border: 4px solid white;
+  width: calc(60px * var(--ui-scale, 1));
+  height: calc(60px * var(--ui-scale, 1));
+  border: calc(4px * var(--ui-scale, 1)) solid white;
   border-radius: 50%;
   animation: pulse-ring 1.5s ease-out infinite;
 }
@@ -153,32 +153,32 @@ const toggleRecording = () => {
 }
 
 .status-text {
-  font-size: 1.5rem;
+  font-size: calc(1.5rem * var(--ui-scale, 1));
   font-weight: 600;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  margin-bottom: 0.5rem;
+  margin-bottom: calc(0.5rem * var(--ui-scale, 1));
   text-align: center;
 }
 
 .counter {
-  font-size: 2rem;
+  font-size: calc(2rem * var(--ui-scale, 1));
   font-weight: 700;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  margin-top: 0.5rem;
+  margin-top: calc(0.5rem * var(--ui-scale, 1));
 }
 
 @media (max-width: 640px) {
   .mic-icon {
-    width: 60px;
-    height: 60px;
+    width: calc(60px * var(--ui-scale, 1));
+    height: calc(60px * var(--ui-scale, 1));
   }
 
   .status-text {
-    font-size: 1.2rem;
+    font-size: calc(1.2rem * var(--ui-scale, 1));
   }
 
   .counter {
-    font-size: 1.5rem;
+    font-size: calc(1.5rem * var(--ui-scale, 1));
   }
 }
 </style>

@@ -131,20 +131,20 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   height: 100%;
-  padding: 2rem;
+  padding: calc(2rem * var(--ui-scale, 1));
 }
 
 .result-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
-  padding: 2.5rem;
+  gap: calc(1.5rem * var(--ui-scale, 1));
+  padding: calc(2.5rem * var(--ui-scale, 1));
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 20px;
+  border-radius: calc(20px * var(--ui-scale, 1));
   border: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
-  max-width: 440px;
+  max-width: calc(440px * var(--ui-scale, 1));
   width: 100%;
 }
 
@@ -171,7 +171,7 @@ onMounted(() => {
 
 .status-text {
   color: rgba(255, 255, 255, 0.8);
-  font-size: 1.1rem;
+  font-size: calc(1.1rem * var(--ui-scale, 1));
   text-align: center;
   margin: 0;
 }
@@ -186,8 +186,8 @@ onMounted(() => {
 }
 
 .success-icon {
-  width: 64px;
-  height: 64px;
+  width: calc(64px * var(--ui-scale, 1));
+  height: calc(64px * var(--ui-scale, 1));
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 50%;
   display: flex;
@@ -197,8 +197,8 @@ onMounted(() => {
 }
 
 .success-icon svg {
-  width: 36px;
-  height: 36px;
+  width: calc(36px * var(--ui-scale, 1));
+  height: calc(36px * var(--ui-scale, 1));
 }
 
 .ready-text {
@@ -208,30 +208,30 @@ onMounted(() => {
 .ready-text p {
   margin: 0;
   color: rgba(255, 255, 255, 0.9);
-  font-size: 1.05rem;
+  font-size: calc(1.05rem * var(--ui-scale, 1));
 }
 
 .ready-hint {
-  margin-top: 0.5rem !important;
+  margin-top: calc(0.5rem * var(--ui-scale, 1)) !important;
   color: rgba(255, 255, 255, 0.5) !important;
-  font-size: 0.9rem !important;
+  font-size: calc(0.9rem * var(--ui-scale, 1)) !important;
 }
 
 .url-box {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: calc(0.5rem * var(--ui-scale, 1));
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: calc(0.75rem * var(--ui-scale, 1)) calc(1rem * var(--ui-scale, 1));
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+  border-radius: calc(10px * var(--ui-scale, 1));
 }
 
 .page-url {
   flex: 1;
   color: #667eea;
-  font-size: 0.85rem;
+  font-size: calc(0.85rem * var(--ui-scale, 1));
   word-break: break-all;
   font-family: 'SF Mono', 'Fira Code', monospace;
 }
@@ -239,13 +239,13 @@ onMounted(() => {
 .copy-btn {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 0.75rem;
+  gap: calc(0.4rem * var(--ui-scale, 1));
+  padding: calc(0.5rem * var(--ui-scale, 1)) calc(0.75rem * var(--ui-scale, 1));
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
-  border-radius: 8px;
+  border-radius: calc(8px * var(--ui-scale, 1));
   color: white;
-  font-size: 0.8rem;
+  font-size: calc(0.8rem * var(--ui-scale, 1));
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.3s;
@@ -261,8 +261,8 @@ onMounted(() => {
 }
 
 .copy-btn svg {
-  width: 16px;
-  height: 16px;
+  width: calc(16px * var(--ui-scale, 1));
+  height: calc(16px * var(--ui-scale, 1));
 }
 
 /* Error state */
@@ -274,8 +274,8 @@ onMounted(() => {
 }
 
 .error-icon {
-  width: 64px;
-  height: 64px;
+  width: calc(64px * var(--ui-scale, 1));
+  height: calc(64px * var(--ui-scale, 1));
   background: rgba(255, 82, 82, 0.2);
   border-radius: 50%;
   display: flex;
@@ -285,24 +285,24 @@ onMounted(() => {
 }
 
 .error-icon svg {
-  width: 36px;
-  height: 36px;
+  width: calc(36px * var(--ui-scale, 1));
+  height: calc(36px * var(--ui-scale, 1));
 }
 
 .error-detail {
   color: rgba(255, 82, 82, 0.7);
-  font-size: 0.85rem;
+  font-size: calc(0.85rem * var(--ui-scale, 1));
   text-align: center;
   margin: 0;
 }
 
 .retry-btn {
-  padding: 0.6rem 1.5rem;
+  padding: calc(0.6rem * var(--ui-scale, 1)) calc(1.5rem * var(--ui-scale, 1));
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
-  border-radius: 10px;
+  border-radius: calc(10px * var(--ui-scale, 1));
   color: white;
-  font-size: 0.95rem;
+  font-size: calc(0.95rem * var(--ui-scale, 1));
   cursor: pointer;
   transition: all 0.3s;
 }
@@ -316,13 +316,13 @@ onMounted(() => {
 .reset-btn {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 1.5rem;
+  gap: calc(0.5rem * var(--ui-scale, 1));
+  padding: calc(0.6rem * var(--ui-scale, 1)) calc(1.5rem * var(--ui-scale, 1));
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
+  border-radius: calc(10px * var(--ui-scale, 1));
   color: rgba(255, 255, 255, 0.8);
-  font-size: 0.95rem;
+  font-size: calc(0.95rem * var(--ui-scale, 1));
   cursor: pointer;
   transition: all 0.3s;
 }
@@ -337,17 +337,17 @@ onMounted(() => {
 }
 
 .reset-btn svg {
-  width: 18px;
-  height: 18px;
+  width: calc(18px * var(--ui-scale, 1));
+  height: calc(18px * var(--ui-scale, 1));
 }
 
 @media (max-width: 640px) {
   .result-container {
-    padding: 1rem;
+    padding: calc(1rem * var(--ui-scale, 1));
   }
 
   .result-card {
-    padding: 1.5rem;
+    padding: calc(1.5rem * var(--ui-scale, 1));
   }
 
   .url-box {
