@@ -187,14 +187,14 @@ const saveSettings = () => {
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  padding: 1rem;
+  padding: calc(1rem * var(--ui-scale, 1));
 }
 
 .modal-content {
   background: linear-gradient(135deg, #1e1e2e 0%, #2a2a3e 100%);
-  border-radius: 20px;
+  border-radius: calc(20px * var(--ui-scale, 1));
   width: 100%;
-  max-width: 500px;
+  max-width: calc(500px * var(--ui-scale, 1));
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
               0 0 0 1px rgba(255, 255, 255, 0.1);
   overflow: hidden;
@@ -204,13 +204,13 @@ const saveSettings = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem;
+  padding: calc(1.5rem * var(--ui-scale, 1));
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .modal-header h2 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: calc(1.5rem * var(--ui-scale, 1));
   color: white;
   font-weight: 600;
 }
@@ -220,10 +220,10 @@ const saveSettings = () => {
   border: none;
   color: rgba(255, 255, 255, 0.7);
   cursor: pointer;
-  padding: 0.5rem;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  padding: calc(0.5rem * var(--ui-scale, 1));
+  width: calc(32px * var(--ui-scale, 1));
+  height: calc(32px * var(--ui-scale, 1));
+  border-radius: calc(8px * var(--ui-scale, 1));
   transition: all 0.2s;
   display: flex;
   align-items: center;
@@ -236,29 +236,29 @@ const saveSettings = () => {
 }
 
 .modal-body {
-  padding: 1.5rem;
+  padding: calc(1.5rem * var(--ui-scale, 1));
 }
 
 .form-group {
-  margin-bottom: 1.5rem;
+  margin-bottom: calc(1.5rem * var(--ui-scale, 1));
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 0.5rem;
+  margin-bottom: calc(0.5rem * var(--ui-scale, 1));
   color: rgba(255, 255, 255, 0.9);
   font-weight: 500;
-  font-size: 0.95rem;
+  font-size: calc(0.95rem * var(--ui-scale, 1));
 }
 
 .form-input {
   width: 100%;
-  padding: 0.75rem;
+  padding: calc(0.75rem * var(--ui-scale, 1));
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+  border-radius: calc(10px * var(--ui-scale, 1));
   color: white;
-  font-size: 1rem;
+  font-size: calc(1rem * var(--ui-scale, 1));
   transition: all 0.2s;
   font-family: inherit;
   resize: vertical;
@@ -289,8 +289,8 @@ const saveSettings = () => {
 .range-input::-webkit-slider-thumb {
   appearance: none;
   -webkit-appearance: none;
-  width: 24px;
-  height: 24px;
+  width: calc(24px * var(--ui-scale, 1));
+  height: calc(24px * var(--ui-scale, 1));
   border-radius: 50%;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: 2px solid rgba(255, 255, 255, 0.4);
@@ -303,8 +303,8 @@ const saveSettings = () => {
 }
 
 .range-input::-moz-range-thumb {
-  width: 24px;
-  height: 24px;
+  width: calc(24px * var(--ui-scale, 1));
+  height: calc(24px * var(--ui-scale, 1));
   border-radius: 50%;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: 2px solid rgba(255, 255, 255, 0.4);
@@ -317,25 +317,25 @@ const saveSettings = () => {
 }
 
 .range-input::-moz-range-track {
-  height: 6px;
+  height: calc(6px * var(--ui-scale, 1));
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.15);
 }
 
 .input-hint {
-  margin-top: 0.5rem;
+  margin-top: calc(0.5rem * var(--ui-scale, 1));
   color: rgba(255, 255, 255, 0.5);
-  font-size: 0.85rem;
+  font-size: calc(0.85rem * var(--ui-scale, 1));
 }
 
 .save-button {
   width: 100%;
-  padding: 1rem;
+  padding: calc(1rem * var(--ui-scale, 1));
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
-  border-radius: 10px;
+  border-radius: calc(10px * var(--ui-scale, 1));
   color: white;
-  font-size: 1.1rem;
+  font-size: calc(1.1rem * var(--ui-scale, 1));
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
@@ -390,36 +390,36 @@ const saveSettings = () => {
 
 /* PWA section */
 .pwa-section {
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
+  margin-top: calc(1.5rem * var(--ui-scale, 1));
+  padding-top: calc(1.5rem * var(--ui-scale, 1));
 }
 
 .pwa-divider {
   height: 1px;
   background: rgba(255, 255, 255, 0.1);
-  margin-bottom: 1rem;
+  margin-bottom: calc(1rem * var(--ui-scale, 1));
 }
 
 .install-button {
   width: 100%;
-  padding: 0.875rem;
+  padding: calc(0.875rem * var(--ui-scale, 1));
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
+  border-radius: calc(10px * var(--ui-scale, 1));
   color: white;
-  font-size: 1rem;
+  font-size: calc(1rem * var(--ui-scale, 1));
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: calc(0.5rem * var(--ui-scale, 1));
 }
 
 .install-button svg {
-  width: 22px;
-  height: 22px;
+  width: calc(22px * var(--ui-scale, 1));
+  height: calc(22px * var(--ui-scale, 1));
 }
 
 .install-button:hover {
@@ -441,13 +441,13 @@ const saveSettings = () => {
 }
 
 .ios-instructions {
-  margin-top: 1rem;
-  padding: 1rem;
+  margin-top: calc(1rem * var(--ui-scale, 1));
+  padding: calc(1rem * var(--ui-scale, 1));
   background: rgba(102, 126, 234, 0.1);
   border: 1px solid rgba(102, 126, 234, 0.3);
-  border-radius: 10px;
+  border-radius: calc(10px * var(--ui-scale, 1));
   color: rgba(255, 255, 255, 0.9);
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--ui-scale, 1));
   line-height: 1.6;
 }
 
@@ -470,24 +470,24 @@ const saveSettings = () => {
 
 /* License display section */
 .license-display-section {
-  margin-bottom: 1.5rem;
+  margin-bottom: calc(1.5rem * var(--ui-scale, 1));
 }
 
 .license-badge {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 1rem;
+  gap: calc(1rem * var(--ui-scale, 1));
+  padding: calc(1rem * var(--ui-scale, 1));
   background: rgba(102, 126, 234, 0.1);
   border: 1px solid rgba(102, 126, 234, 0.3);
-  border-radius: 12px;
+  border-radius: calc(12px * var(--ui-scale, 1));
 }
 
 .license-icon-wrapper {
-  width: 40px;
-  height: 40px;
+  width: calc(40px * var(--ui-scale, 1));
+  height: calc(40px * var(--ui-scale, 1));
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 10px;
+  border-radius: calc(10px * var(--ui-scale, 1));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -496,35 +496,35 @@ const saveSettings = () => {
 }
 
 .license-icon-wrapper svg {
-  width: 22px;
-  height: 22px;
+  width: calc(22px * var(--ui-scale, 1));
+  height: calc(22px * var(--ui-scale, 1));
 }
 
 .license-details {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: calc(0.25rem * var(--ui-scale, 1));
   min-width: 0;
   flex: 1;
 }
 
 .license-key {
   font-family: 'Courier New', monospace;
-  font-size: 0.9rem;
+  font-size: calc(0.9rem * var(--ui-scale, 1));
   font-weight: 600;
   color: white;
   word-break: break-all;
 }
 
 .license-expires {
-  font-size: 0.8rem;
+  font-size: calc(0.8rem * var(--ui-scale, 1));
   color: rgba(255, 255, 255, 0.6);
 }
 
 @media (max-width: 640px) {
   .modal-content {
     max-width: 100%;
-    border-radius: 20px 20px 0 0;
+    border-radius: calc(20px * var(--ui-scale, 1)) calc(20px * var(--ui-scale, 1)) 0 0;
     margin-top: auto;
   }
 

@@ -159,14 +159,14 @@ const handleInput = () => {
   align-items: center;
   justify-content: center;
   z-index: 2000;
-  padding: 1rem;
+  padding: calc(1rem * var(--ui-scale, 1));
 }
 
 .license-modal-content {
   background: linear-gradient(135deg, #1e1e2e 0%, #2a2a3e 100%);
-  border-radius: 24px;
+  border-radius: calc(24px * var(--ui-scale, 1));
   width: 100%;
-  max-width: 480px;
+  max-width: calc(480px * var(--ui-scale, 1));
   box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6),
               0 0 0 1px rgba(255, 255, 255, 0.1);
   overflow: hidden;
@@ -174,16 +174,16 @@ const handleInput = () => {
 
 .license-header {
   text-align: center;
-  padding: 2rem 2rem 1.5rem;
+  padding: calc(2rem * var(--ui-scale, 1)) calc(2rem * var(--ui-scale, 1)) calc(1.5rem * var(--ui-scale, 1));
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .license-icon {
-  width: 64px;
-  height: 64px;
-  margin: 0 auto 1rem;
+  width: calc(64px * var(--ui-scale, 1));
+  height: calc(64px * var(--ui-scale, 1));
+  margin: 0 auto calc(1rem * var(--ui-scale, 1));
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 16px;
+  border-radius: calc(16px * var(--ui-scale, 1));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -191,13 +191,13 @@ const handleInput = () => {
 }
 
 .license-icon svg {
-  width: 36px;
-  height: 36px;
+  width: calc(36px * var(--ui-scale, 1));
+  height: calc(36px * var(--ui-scale, 1));
 }
 
 .license-header h2 {
-  margin: 0 0 0.5rem;
-  font-size: 1.5rem;
+  margin: 0 0 calc(0.5rem * var(--ui-scale, 1));
+  font-size: calc(1.5rem * var(--ui-scale, 1));
   color: white;
   font-weight: 600;
 }
@@ -205,33 +205,33 @@ const handleInput = () => {
 .license-subtitle {
   margin: 0;
   color: rgba(255, 255, 255, 0.6);
-  font-size: 0.95rem;
+  font-size: calc(0.95rem * var(--ui-scale, 1));
 }
 
 .license-body {
-  padding: 2rem;
+  padding: calc(2rem * var(--ui-scale, 1));
 }
 
 .form-group {
-  margin-bottom: 1.5rem;
+  margin-bottom: calc(1.5rem * var(--ui-scale, 1));
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 0.5rem;
+  margin-bottom: calc(0.5rem * var(--ui-scale, 1));
   color: rgba(255, 255, 255, 0.9);
   font-weight: 500;
-  font-size: 0.95rem;
+  font-size: calc(0.95rem * var(--ui-scale, 1));
 }
 
 .license-input {
   width: 100%;
-  padding: 1rem;
+  padding: calc(1rem * var(--ui-scale, 1));
   background: rgba(255, 255, 255, 0.05);
   border: 2px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
+  border-radius: calc(12px * var(--ui-scale, 1));
   color: white;
-  font-size: 1.1rem;
+  font-size: calc(1.1rem * var(--ui-scale, 1));
   font-weight: 600;
   text-align: center;
   letter-spacing: 2px;
@@ -247,66 +247,66 @@ const handleInput = () => {
 }
 
 .input-hint {
-  margin-top: 0.5rem;
+  margin-top: calc(0.5rem * var(--ui-scale, 1));
   color: rgba(255, 255, 255, 0.5);
-  font-size: 0.85rem;
+  font-size: calc(0.85rem * var(--ui-scale, 1));
   text-align: center;
 }
 
 .expires-info {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  gap: calc(0.75rem * var(--ui-scale, 1));
+  padding: calc(0.75rem * var(--ui-scale, 1)) calc(1rem * var(--ui-scale, 1));
   background: rgba(102, 126, 234, 0.15);
   border: 1px solid rgba(102, 126, 234, 0.3);
-  border-radius: 10px;
+  border-radius: calc(10px * var(--ui-scale, 1));
   color: #667eea;
-  font-size: 0.9rem;
+  font-size: calc(0.9rem * var(--ui-scale, 1));
   font-weight: 500;
-  margin-bottom: 1.5rem;
+  margin-bottom: calc(1.5rem * var(--ui-scale, 1));
 }
 
 .expires-info svg {
-  width: 20px;
-  height: 20px;
+  width: calc(20px * var(--ui-scale, 1));
+  height: calc(20px * var(--ui-scale, 1));
   flex-shrink: 0;
 }
 
 .error-message {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  gap: calc(0.75rem * var(--ui-scale, 1));
+  padding: calc(0.75rem * var(--ui-scale, 1)) calc(1rem * var(--ui-scale, 1));
   background: rgba(245, 87, 108, 0.1);
   border: 1px solid rgba(245, 87, 108, 0.3);
-  border-radius: 10px;
+  border-radius: calc(10px * var(--ui-scale, 1));
   color: #f5576c;
-  font-size: 0.9rem;
-  margin-bottom: 1.5rem;
+  font-size: calc(0.9rem * var(--ui-scale, 1));
+  margin-bottom: calc(1.5rem * var(--ui-scale, 1));
 }
 
 .error-message svg {
-  width: 20px;
-  height: 20px;
+  width: calc(20px * var(--ui-scale, 1));
+  height: calc(20px * var(--ui-scale, 1));
   flex-shrink: 0;
 }
 
 .activate-button {
   width: 100%;
-  padding: 1rem;
+  padding: calc(1rem * var(--ui-scale, 1));
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
-  border-radius: 12px;
+  border-radius: calc(12px * var(--ui-scale, 1));
   color: white;
-  font-size: 1.1rem;
+  font-size: calc(1.1rem * var(--ui-scale, 1));
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
+  gap: calc(0.75rem * var(--ui-scale, 1));
 }
 
 .activate-button:hover:not(:disabled) {
@@ -324,11 +324,11 @@ const handleInput = () => {
 }
 
 .license-info {
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
+  margin-top: calc(1.5rem * var(--ui-scale, 1));
+  padding-top: calc(1.5rem * var(--ui-scale, 1));
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   color: rgba(255, 255, 255, 0.5);
-  font-size: 0.85rem;
+  font-size: calc(0.85rem * var(--ui-scale, 1));
   text-align: center;
   line-height: 1.6;
 }
@@ -357,7 +357,7 @@ const handleInput = () => {
 @media (max-width: 640px) {
   .license-modal-content {
     max-width: 100%;
-    border-radius: 24px 24px 0 0;
+    border-radius: calc(24px * var(--ui-scale, 1)) calc(24px * var(--ui-scale, 1)) 0 0;
     margin-top: auto;
   }
 
@@ -367,11 +367,11 @@ const handleInput = () => {
   }
 
   .license-header {
-    padding: 1.5rem 1.5rem 1rem;
+    padding: calc(1.5rem * var(--ui-scale, 1)) calc(1.5rem * var(--ui-scale, 1)) calc(1rem * var(--ui-scale, 1));
   }
 
   .license-body {
-    padding: 1.5rem;
+    padding: calc(1.5rem * var(--ui-scale, 1));
   }
 }
 </style>
