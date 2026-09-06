@@ -113,7 +113,8 @@ def generate_html(data):
     }}
 
     .instruction {{
-      text-align: center;
+      text-align: left;
+      white-space: pre-wrap;
       color: rgba(255, 255, 255, 0.6);
       font-size: 1rem;
       margin-bottom: 32px;
