@@ -10,6 +10,7 @@ BUCKET_NAME = os.environ.get('BUCKET_NAME', 'magic-show-data')
 OBJECT_KEY_DEFAULT = 'data.json'
 OBJECT_KEY_PREFIX = 'data/'
 USAGE_LOG_OBJECT_KEY = 'logs/usage.json'
+BLOCKLIST_OBJECT_KEY = 'blocklist.json'
 PAGE_TITLE = os.environ.get('PAGE_TITLE', 'Инструкция')
 
 s3 = boto3.client(
@@ -25,6 +26,35 @@ def get_object_key(license_key):
     if license_key and re.match(LICENSE_REGEX, license_key):
         return f'{OBJECT_KEY_PREFIX}{license_key}.json'
     return OBJECT_KEY_DEFAULT
+
+
+def load_blocklist():
+    try:
+        response = s3.get_object(Bucket=BUCKET_NAME, Key=BLOCKLIST_OBJECT_KEY)
+        data = json.loads(response['Body'].read().decode('utf-8'))
+        if isinstance(data, list):
+            return set(data)
+        if isinstance(data, dict):
+            return set(data.get('blocked', []))
+        return set()
+    except ClientError as e:
+        if e.response['Error']['Code'] != 'NoSuchKey':
+            print(f'Blocklist read error: {e}')
+        return set()
+
+
+def log_blocked(license_key, event):
+    entry = {
+        'ts': datetime.now(timezone.utc).isoformat(),
+        'license': license_key,
+        'ip': get_client_ip(event),
+        'blocked': True,
+    }
+    ua = (event.get('headers') or {}).get('User-Agent') or \
+         (event.get('headers') or {}).get('user-agent')
+    if ua:
+        entry['userAgent'] = ua
+    append_usage_log(entry)
 
 
 def get_client_ip(event):
@@ -292,6 +322,17 @@ def handler(event, context):
                     'body': json.dumps({'error': 'Invalid license key format'}, ensure_ascii=False),
                 }
 
+            if license_key and license_key in load_blocklist():
+                log_blocked(license_key, event)
+                return {
+                    'statusCode': 403,
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*',
+                    },
+                    'body': json.dumps({'error': 'License key blocked'}, ensure_ascii=False),
+                }
+
             if license_key:
                 log_request(license_key, event, data.get('deviceId'))
 
@@ -311,6 +352,16 @@ def handler(event, context):
         elif http_method == 'GET':
             query_params = event.get('queryStringParameters') or {}
             license_key = query_params.get('license', '')
+            if license_key and license_key in load_blocklist():
+                log_blocked(license_key, event)
+                return {
+                    'statusCode': 403,
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*',
+                    },
+                    'body': json.dumps({'error': 'License key blocked'}, ensure_ascii=False),
+                }
             if license_key:
                 log_request(license_key, event, query_params.get('deviceId'))
             object_key = get_object_key(license_key)
