@@ -352,18 +352,6 @@ def handler(event, context):
         elif http_method == 'GET':
             query_params = event.get('queryStringParameters') or {}
             license_key = query_params.get('license', '')
-            if license_key and license_key in load_blocklist():
-                log_blocked(license_key, event)
-                return {
-                    'statusCode': 403,
-                    'headers': {
-                        'Content-Type': 'application/json',
-                        'Access-Control-Allow-Origin': '*',
-                    },
-                    'body': json.dumps({'error': 'License key blocked'}, ensure_ascii=False),
-                }
-            if license_key:
-                log_request(license_key, event, query_params.get('deviceId'))
             object_key = get_object_key(license_key)
             data = load_data(object_key)
 
