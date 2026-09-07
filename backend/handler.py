@@ -43,13 +43,15 @@ def load_blocklist():
         return set()
 
 
-def log_blocked(license_key, event):
+def log_blocked(license_key, event, device_id=None):
     entry = {
         'ts': datetime.now(timezone.utc).isoformat(),
         'license': license_key,
         'ip': get_client_ip(event),
         'blocked': True,
     }
+    if device_id:
+        entry['deviceId'] = device_id
     ua = (event.get('headers') or {}).get('User-Agent') or \
          (event.get('headers') or {}).get('user-agent')
     if ua:
@@ -323,7 +325,7 @@ def handler(event, context):
                 }
 
             if license_key and license_key in load_blocklist():
-                log_blocked(license_key, event)
+                log_blocked(license_key, event, data.get('deviceId'))
                 return {
                     'statusCode': 403,
                     'headers': {
