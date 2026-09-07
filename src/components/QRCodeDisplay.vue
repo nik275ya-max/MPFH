@@ -50,6 +50,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { getDeviceId } from '../composables/useLicense'
 
 const props = defineProps<{
   instruction: string
@@ -84,6 +85,7 @@ const sendData = async () => {
         instruction: props.instruction,
         replies: props.replies,
         license: license,
+        deviceId: getDeviceId(),
       }),
     })
 

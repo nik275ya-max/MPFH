@@ -1,6 +1,7 @@
 import { ref, computed } from 'vue'
 
 const STORAGE_KEY = 'mpfh-license-key'
+const DEVICE_ID_KEY = 'mpfh-device-id'
 
 /**
  * Вычисление CRC16 контрольной суммы
@@ -195,6 +196,37 @@ function clearLicense(): void {
 }
 
 /**
+ * Генерация случайного идентификатора устройства
+ */
+function generateDeviceId(): string {
+  try {
+    const bytes = new Uint8Array(16)
+    crypto.getRandomValues(bytes)
+    return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('')
+  } catch (error) {
+    console.error('Failed to generate device id:', error)
+    return 'd' + Math.random().toString(16).slice(2) + Date.now().toString(16)
+  }
+}
+
+/**
+ * Получение (или создание) идентификатора устройства из localStorage
+ */
+export function getDeviceId(): string {
+  try {
+    let id = localStorage.getItem(DEVICE_ID_KEY)
+    if (!id) {
+      id = generateDeviceId()
+      localStorage.setItem(DEVICE_ID_KEY, id)
+    }
+    return id
+  } catch (error) {
+    console.error('Failed to load device id:', error)
+    return generateDeviceId()
+  }
+}
+
+/**
  * Инициализация лицензии при загрузке
  */
 function initLicense(): void {
@@ -272,6 +304,7 @@ export function useLicense() {
     setLicenseKey,
     checkLicense,
     clearLicense,
+    getDeviceId,
     validateKeyFormat,
     formatDate
   }

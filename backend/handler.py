@@ -59,7 +59,7 @@ def append_usage_log(entry):
         print(f'Usage log write error: {e}')
 
 
-def log_request(license_key, event):
+def log_request(license_key, event, device_id=None):
     if not re.match(LICENSE_REGEX, license_key):
         return
     entry = {
@@ -67,6 +67,8 @@ def log_request(license_key, event):
         'license': license_key,
         'ip': get_client_ip(event),
     }
+    if device_id:
+        entry['deviceId'] = device_id
     ua = (event.get('headers') or {}).get('User-Agent') or \
          (event.get('headers') or {}).get('user-agent')
     if ua:
@@ -291,7 +293,7 @@ def handler(event, context):
                 }
 
             if license_key:
-                log_request(license_key, event)
+                log_request(license_key, event, data.get('deviceId'))
 
             save_data(data)
 
@@ -310,7 +312,7 @@ def handler(event, context):
             query_params = event.get('queryStringParameters') or {}
             license_key = query_params.get('license', '')
             if license_key:
-                log_request(license_key, event)
+                log_request(license_key, event, query_params.get('deviceId'))
             object_key = get_object_key(license_key)
             data = load_data(object_key)
 
