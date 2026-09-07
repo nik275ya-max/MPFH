@@ -1,12 +1,15 @@
 import json
 import os
 import re
+from datetime import datetime, timezone
+
 import boto3
 from botocore.exceptions import ClientError
 
 BUCKET_NAME = os.environ.get('BUCKET_NAME', 'magic-show-data')
 OBJECT_KEY_DEFAULT = 'data.json'
 OBJECT_KEY_PREFIX = 'data/'
+USAGE_LOG_OBJECT_KEY = 'logs/usage.json'
 PAGE_TITLE = os.environ.get('PAGE_TITLE', 'Инструкция')
 
 s3 = boto3.client(
@@ -22,6 +25,53 @@ def get_object_key(license_key):
     if license_key and re.match(LICENSE_REGEX, license_key):
         return f'{OBJECT_KEY_PREFIX}{license_key}.json'
     return OBJECT_KEY_DEFAULT
+
+
+def get_client_ip(event):
+    identity = (event.get('requestContext') or {}).get('identity') or {}
+    return identity.get('sourceIp') or None
+
+
+def get_usage_log():
+    try:
+        response = s3.get_object(Bucket=BUCKET_NAME, Key=USAGE_LOG_OBJECT_KEY)
+        data = json.loads(response['Body'].read().decode('utf-8'))
+        return data if isinstance(data, list) else []
+    except ClientError as e:
+        if e.response['Error']['Code'] != 'NoSuchKey':
+            print(f'Usage log read error: {e}')
+        return []
+
+
+def append_usage_log(entry):
+    try:
+        entries = get_usage_log()
+        entries.append(entry)
+        body = json.dumps(entries, ensure_ascii=False, indent=2)
+        s3.put_object(
+            Bucket=BUCKET_NAME,
+            Key=USAGE_LOG_OBJECT_KEY,
+            Body=body.encode('utf-8'),
+            ContentType='application/json; charset=utf-8',
+            StorageClass='STANDARD',
+        )
+    except Exception as e:
+        print(f'Usage log write error: {e}')
+
+
+def log_request(license_key, event):
+    if not re.match(LICENSE_REGEX, license_key):
+        return
+    entry = {
+        'ts': datetime.now(timezone.utc).isoformat(),
+        'license': license_key,
+        'ip': get_client_ip(event),
+    }
+    ua = (event.get('headers') or {}).get('User-Agent') or \
+         (event.get('headers') or {}).get('user-agent')
+    if ua:
+        entry['userAgent'] = ua
+    append_usage_log(entry)
 
 
 def save_data(data):
@@ -240,6 +290,9 @@ def handler(event, context):
                     'body': json.dumps({'error': 'Invalid license key format'}, ensure_ascii=False),
                 }
 
+            if license_key:
+                log_request(license_key, event)
+
             save_data(data)
 
             return {
@@ -256,6 +309,8 @@ def handler(event, context):
         elif http_method == 'GET':
             query_params = event.get('queryStringParameters') or {}
             license_key = query_params.get('license', '')
+            if license_key:
+                log_request(license_key, event)
             object_key = get_object_key(license_key)
             data = load_data(object_key)
 
