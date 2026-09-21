@@ -23,3 +23,13 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Python
+__pycache__/
+*.pyc
+
+# Playwright MCP snapshots
+.playwright-mcp/
+
+# Misc
+error.txt
