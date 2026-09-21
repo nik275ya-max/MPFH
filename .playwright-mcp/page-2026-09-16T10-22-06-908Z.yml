@@ -1,0 +1,6 @@
+- generic [ref=f1e4]:
+  - banner [ref=f1e5]:
+    - heading "Master Prediction Free Hand" [level=1] [ref=f1e6]
+    - button [active] [ref=f1e7] [cursor=pointer]
+  - main [ref=f1e10]:
+    - button "Press to record" [ref=f1e50] [cursor=pointer]

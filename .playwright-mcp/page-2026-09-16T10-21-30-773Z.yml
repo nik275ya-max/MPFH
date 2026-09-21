@@ -1,0 +1,32 @@
+- generic [ref=f1e3]:
+  - generic [ref=f1e4]:
+    - banner [ref=f1e5]:
+      - heading "Master Prediction Free Hand" [level=1] [ref=f1e6]
+      - button [active] [ref=f1e7] [cursor=pointer]
+    - main [ref=f1e10]:
+      - button "Нажмите для записи" [ref=f1e12] [cursor=pointer]
+  - generic [ref=f1e21]:
+    - generic [ref=f1e22]:
+      - heading "Настройки" [level=2] [ref=f1e23]
+      - button [ref=f1e24] [cursor=pointer]
+    - generic [ref=f1e27]:
+      - generic [ref=f1e33]:
+        - generic [ref=f1e34]: MPFH-20270915-9909-9AZ1
+        - generic [ref=f1e35]: "Действует до: 15.09.2027"
+      - generic [ref=f1e36]:
+        - generic [ref=f1e37]: "Язык:"
+        - combobox "Язык:" [ref=f1e38] [cursor=pointer]:
+          - option "Русский" [selected]
+          - option "English"
+      - generic [ref=f1e39]:
+        - generic [ref=f1e40]: "Инструкция к фокусу:"
+        - textbox "Инструкция к фокусу:" [ref=f1e41]:
+          - /placeholder: Введите инструкцию...
+      - generic [ref=f1e42]:
+        - generic [ref=f1e43]: "Количество запоминаемых реплик:"
+        - spinbutton "Количество запоминаемых реплик:" [ref=f1e44]: "4"
+      - generic [ref=f1e45]:
+        - generic [ref=f1e46]: "Размер объектов: 200%"
+        - 'slider "Размер объектов: 200%" [ref=f1e47] [cursor=pointer]': "2"
+        - paragraph [ref=f1e48]: Настройте под размер и разрешение вашего экрана
+      - button "Сохранить" [ref=f1e49] [cursor=pointer]
