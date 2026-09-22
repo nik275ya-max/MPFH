@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../models/sensor_mode.dart';
 import '../services/license_service.dart';
 import '../services/settings_service.dart';
+import 'magnet_calibration_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -15,6 +17,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   int _repliesCount = SettingsService.instance.repliesCount;
   double _sensitivity = SettingsService.instance.sensitivity;
   double _tiltAngle = SettingsService.instance.tiltAngle;
+  SensorMode _sensorMode = SettingsService.instance.sensorMode;
+  double _magnetBaseline = SettingsService.instance.magnetBaseline;
+  double _magnetOffset = SettingsService.instance.magnetOffset;
 
   @override
   void initState() {
@@ -54,8 +59,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await settings.setRepliesCount(_repliesCount);
     await settings.setSensitivity(_sensitivity);
     await settings.setTiltAngle(_tiltAngle);
+    await settings.setSensorMode(_sensorMode);
+    await settings.setMagnetOffset(_magnetOffset);
     if (!mounted) return;
     Navigator.of(context).pop();
+  }
+
+  Future<void> _calibrateMagnet() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const MagnetCalibrationScreen()),
+    );
+    if (!mounted) return;
+    final s = SettingsService.instance;
+    setState(() {
+      _magnetBaseline = s.magnetBaseline;
+      _magnetOffset = s.magnetOffset;
+    });
   }
 
   Future<void> _changeLicense() async {
@@ -162,6 +181,77 @@ class _SettingsScreenState extends State<SettingsScreen> {
           Text(
             'Отклонение телефона от вертикали, при котором начинается запись.',
             style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.6)),
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            'Датчик записи',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 8),
+          RadioGroup<SensorMode>(
+            groupValue: _sensorMode,
+            onChanged: (v) => setState(() => _sensorMode = v!),
+            child: Column(
+              children: [
+                RadioListTile<SensorMode>(
+                  value: SensorMode.accelerometer,
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                  title: const Text('Наклон телефона (акселерометр)'),
+                ),
+                RadioListTile<SensorMode>(
+                  value: SensorMode.magnetometer,
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                  title: const Text('Магнит (магнитометр)'),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            'Магнитометр',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            _magnetBaseline > 0
+                ? 'База: ${_magnetBaseline.round()} µT · Порог: '
+                    '${(_magnetBaseline + _magnetOffset).round()} µT'
+                : 'Калибровка не выполнена. Проведите калибровку для работы датчика.',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.white.withValues(alpha: 0.7),
+            ),
+          ),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: _calibrateMagnet,
+            icon: const Icon(Icons.tune),
+            label: const Text('Калибровать'),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Порог срабатывания',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 8),
+          Slider(
+            value: _magnetOffset.clamp(10, 150).toDouble(),
+            min: 10,
+            max: 150,
+            divisions: 140,
+            label: '+${_magnetOffset.round()} µT',
+            onChanged: (value) => setState(() => _magnetOffset = value),
+          ),
+          Text(
+            'Превышение над фоновым полем, при котором начинается запись. '
+            'Ниже — чувствительнее к слабому магниту, но возможны ложные '
+            'срабатывания.',
+            style: TextStyle(
+              fontSize: 13,
+              color: Colors.white.withValues(alpha: 0.6),
+            ),
           ),
           const SizedBox(height: 32),
           FilledButton(

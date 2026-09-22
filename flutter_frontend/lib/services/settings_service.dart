@@ -1,6 +1,8 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math';
 
+import '../models/sensor_mode.dart';
+
 class SettingsService {
   SettingsService._();
   static final SettingsService instance = SettingsService._();
@@ -12,6 +14,9 @@ class SettingsService {
   static const _apiUrlKey = 'mpfh-api-url';
   static const _sensitivityKey = 'mpfh-sensitivity';
   static const _tiltAngleKey = 'mpfh-tilt-angle';
+  static const _sensorModeKey = 'mpfh-sensor-mode';
+  static const _magnetBaselineKey = 'mpfh-magnet-baseline';
+  static const _magnetOffsetKey = 'mpfh-magnet-offset';
 
   String instruction = 'Инструкция к фокусу:';
   int repliesCount = 4;
@@ -21,6 +26,10 @@ class SettingsService {
 
   double sensitivity = 50;
   double tiltAngle = 25;
+
+  SensorMode sensorMode = SensorMode.accelerometer;
+  double magnetBaseline = 0;
+  double magnetOffset = 40;
 
   late SharedPreferences _prefs;
 
@@ -33,6 +42,10 @@ class SettingsService {
     apiUrl = _prefs.getString(_apiUrlKey) ?? apiUrl;
     sensitivity = _prefs.getDouble(_sensitivityKey) ?? sensitivity;
     tiltAngle = _prefs.getDouble(_tiltAngleKey) ?? tiltAngle;
+    sensorMode = SensorMode.values.asNameMap()[_prefs.getString(_sensorModeKey)] ??
+        sensorMode;
+    magnetBaseline = _prefs.getDouble(_magnetBaselineKey) ?? magnetBaseline;
+    magnetOffset = _prefs.getDouble(_magnetOffsetKey) ?? magnetOffset;
     if (_prefs.getString(_deviceIdKey) == null) {
       await _prefs.setString(_deviceIdKey, deviceId);
     }
@@ -66,6 +79,28 @@ class SettingsService {
   Future<void> setTiltAngle(double value) async {
     tiltAngle = value;
     await _prefs.setDouble(_tiltAngleKey, value);
+  }
+
+  double get magnetThreshold => magnetBaseline + magnetOffset;
+
+  Future<void> setSensorMode(SensorMode value) async {
+    sensorMode = value;
+    await _prefs.setString(_sensorModeKey, value.name);
+  }
+
+  Future<void> setMagnetCalibration({
+    required double baseline,
+    required double offset,
+  }) async {
+    magnetBaseline = baseline;
+    magnetOffset = offset;
+    await _prefs.setDouble(_magnetBaselineKey, baseline);
+    await _prefs.setDouble(_magnetOffsetKey, offset);
+  }
+
+  Future<void> setMagnetOffset(double value) async {
+    magnetOffset = value;
+    await _prefs.setDouble(_magnetOffsetKey, value);
   }
 
   String _generateDeviceId() {

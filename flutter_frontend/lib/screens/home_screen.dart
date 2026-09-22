@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
+import '../models/sensor_mode.dart';
 import '../services/api_service.dart';
 import '../services/license_service.dart';
 import '../services/settings_service.dart';
@@ -28,14 +29,19 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<String> _replies = [];
 
   RecordState _state = RecordState.idle;
-  bool _isVertical = true;
+  bool _triggerActive = false;
   bool _speechReady = false;
   String? _statusText;
   int _targetReplies = 4;
+  SensorMode _mode = SensorMode.accelerometer;
 
   StreamSubscription<AccelerometerEvent>? _accelSub;
+  StreamSubscription<MagnetometerEvent>? _magSub;
   double _tiltScore = 0;
   double _motionScore = 0;
+  double _magnetScore = 0;
+
+  static const double _magnetHysteresis = 12.0;
 
   @override
   void initState() {
@@ -47,6 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void dispose() {
     _accelSub?.cancel();
+    _magSub?.cancel();
     _speech.stop();
     super.dispose();
   }
@@ -55,7 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _speechReady = await _speech.initialize(
       onError: (e) => _setStatus('Ошибка распознавания'),
       onStatus: (s) {
-        if (s == 'done' && _isVertical) {
+        if (s == 'done' && !_triggerActive) {
           _stopRecording();
         }
       },
@@ -79,16 +86,42 @@ class _HomeScreenState extends State<HomeScreen> {
       _setStatus('Распознавание речи недоступно');
       return;
     }
+    _mode = SettingsService.instance.sensorMode;
+    if (_mode == SensorMode.magnetometer &&
+        SettingsService.instance.magnetBaseline <= 0) {
+      _setStatus('Сначала откалибруйте магнитометр (Настройки → Калибровать).');
+      return;
+    }
     setState(() => _state = RecordState.armed);
-    _setStatus(
-        'Держите телефон вертикально. Наклоните горизонтально, чтобы записать реплику.');
+    _setStatus(_armedHint);
+    _triggerActive = false;
     _tiltScore = 0;
     _motionScore = 0;
+    _magnetScore = 0;
     _accelSub?.cancel();
-    _accelSub = accelerometerEventStream().listen((event) {
-      _onAccelerometer(event.x, event.y, event.z);
-    });
+    _magSub?.cancel();
+    if (_mode == SensorMode.magnetometer) {
+      _magSub = magnetometerEventStream().listen((e) {
+        _onMagnetometer(e.x, e.y, e.z);
+      });
+    } else {
+      _accelSub = accelerometerEventStream().listen((e) {
+        _onAccelerometer(e.x, e.y, e.z);
+      });
+    }
   }
+
+  String get _armedHint => switch (_mode) {
+        SensorMode.accelerometer =>
+          'Держите телефон вертикально. Наклоните горизонтально, чтобы записать реплику.',
+        SensorMode.magnetometer =>
+          'Держите телефон неподвижно. Поднесите магнит, чтобы записать реплику.',
+      };
+
+  String get _armedFallback => switch (_mode) {
+        SensorMode.accelerometer => 'Следите за положением телефона',
+        SensorMode.magnetometer => 'Следите за магнитным полем',
+      };
 
   static const double _gravity = 9.81;
 
@@ -114,19 +147,32 @@ class _HomeScreenState extends State<HomeScreen> {
     _motionScore += alpha * (motionNorm - _motionScore);
 
     final isVertical = _tiltScore < 1.0 && _motionScore < 1.0;
-
-    if (_isVertical != isVertical) {
-      _setVertical(isVertical);
-    }
+    _setTriggerActive(!isVertical);
   }
 
-  void _setVertical(bool isVertical) {
-    if (_isVertical == isVertical) return;
-    _isVertical = isVertical;
-    if (isVertical) {
-      _stopRecording();
-    } else {
+  void _onMagnetometer(double x, double y, double z) {
+    if (_state != RecordState.armed && _state != RecordState.recording) return;
+
+    final magnitude = math.sqrt(x * x + y * y + z * z);
+    const alpha = 0.15;
+    _magnetScore += alpha * (magnitude - _magnetScore);
+
+    final threshold = SettingsService.instance.magnetThreshold;
+    // Hysteresis: to start recording the field must rise above the threshold,
+    // to stop it must drop back below the threshold minus a small gap.
+    final active = _triggerActive
+        ? _magnetScore >= threshold - _magnetHysteresis
+        : _magnetScore >= threshold;
+    _setTriggerActive(active);
+  }
+
+  void _setTriggerActive(bool active) {
+    if (_triggerActive == active) return;
+    _triggerActive = active;
+    if (active) {
       _startRecording();
+    } else {
+      _stopRecording();
     }
   }
 
@@ -140,12 +186,18 @@ class _HomeScreenState extends State<HomeScreen> {
     return 0.05 + (sensitivity / 100) * 0.25;
   }
 
+  String get _recordingHint => switch (_mode) {
+        SensorMode.accelerometer =>
+          'Идёт запись реплики ${_replies.length + 1}. Поставьте телефон вертикально для завершения.',
+        SensorMode.magnetometer =>
+          'Идёт запись реплики ${_replies.length + 1}. Уберите магнит для завершения.',
+      };
+
   Future<void> _startRecording() async {
     if (_state == RecordState.recording) return;
     await _vibrate();
     setState(() => _state = RecordState.recording);
-    _setStatus(
-        'Идёт запись реплики ${_replies.length + 1}. Поставьте телефон вертикально для завершения.');
+    _setStatus(_recordingHint);
 
     try {
       await _speech.listen(
@@ -183,10 +235,17 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
     if (_replies.length < _targetReplies) {
-      _setStatus(
-          'Запись завершена (${_replies.length}/$_targetReplies). Наклоните телефон для следующей реплики.');
+      _setStatus('Запись завершена (${_replies.length}/$_targetReplies). '
+          '$_stopHint');
     }
   }
+
+  String get _stopHint => switch (_mode) {
+        SensorMode.accelerometer =>
+          'Наклоните телефон для следующей реплики.',
+        SensorMode.magnetometer =>
+          'Поднесите магнит для следующей реплики.',
+      };
 
   void _finishAll() {
     if (!mounted) return;
@@ -195,6 +254,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _statusText = 'Все реплики записаны. Отправка данных на сервер...';
     });
     _accelSub?.cancel();
+    _magSub?.cancel();
     _sendData();
   }
 
@@ -336,8 +396,8 @@ class _HomeScreenState extends State<HomeScreen> {
         indicatorText = _statusText ?? 'Нажмите СТАРТ, чтобы начать';
         break;
       case RecordState.armed:
-        indicatorColor = _isVertical ? Colors.orange : Colors.green;
-        indicatorText = _statusText ?? 'Следите за положением телефона';
+        indicatorColor = _triggerActive ? Colors.green : Colors.orange;
+        indicatorText = _statusText ?? _armedFallback;
         break;
       case RecordState.recording:
         indicatorColor = Colors.red;
