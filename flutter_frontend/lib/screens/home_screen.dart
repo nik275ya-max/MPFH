@@ -37,6 +37,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   StreamSubscription<AccelerometerEvent>? _accelSub;
   StreamSubscription<MagnetometerEvent>? _magSub;
+  Timer? _watchdog;
+  DateTime? _lastMagEvent;
   double _tiltScore = 0;
   double _motionScore = 0;
   double _magnetScore = 0;
@@ -52,6 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    _watchdog?.cancel();
     _accelSub?.cancel();
     _magSub?.cancel();
     _speech.stop();
@@ -98,12 +101,16 @@ class _HomeScreenState extends State<HomeScreen> {
     _tiltScore = 0;
     _motionScore = 0;
     _magnetScore = 0;
+    _lastMagEvent = null;
+    _watchdog?.cancel();
     _accelSub?.cancel();
     _magSub?.cancel();
     if (_mode == SensorMode.magnetometer) {
-      _magSub = magnetometerEventStream().listen((e) {
-        _onMagnetometer(e.x, e.y, e.z);
-      });
+      _subscribeMagnetometer();
+      _watchdog = Timer.periodic(
+        const Duration(seconds: 2),
+        (_) => _checkMagnetStale(),
+      );
     } else {
       _accelSub = accelerometerEventStream().listen((e) {
         _onAccelerometer(e.x, e.y, e.z);
@@ -122,6 +129,42 @@ class _HomeScreenState extends State<HomeScreen> {
         SensorMode.accelerometer => 'Следите за положением телефона',
         SensorMode.magnetometer => 'Следите за магнитным полем',
       };
+
+  // sensors_plus shares a single broadcast stream: switching periods in the
+  // calibration screen would affect this listener too, so both use gameInterval.
+  void _subscribeMagnetometer() {
+    _magSub?.cancel();
+    _magSub = magnetometerEventStream(
+      samplingPeriod: SensorInterval.gameInterval,
+    ).listen(
+      (e) {
+        _lastMagEvent = DateTime.now();
+        _onMagnetometer(e.x, e.y, e.z);
+      },
+      onError: (Object error) {
+        debugPrint('Magnetometer stream error: $error');
+        _lastMagEvent = null;
+      },
+      cancelOnError: false,
+    );
+  }
+
+  void _checkMagnetStale() {
+    if (_mode != SensorMode.magnetometer) return;
+    if (_state != RecordState.armed && _state != RecordState.recording) return;
+    final last = _lastMagEvent;
+    if (last == null ||
+        DateTime.now().difference(last) > const Duration(seconds: 3)) {
+      debugPrint('Magnetometer stream stale, resubscribing');
+      _subscribeMagnetometer();
+    }
+  }
+
+  String get _liveSensorText => _mode == SensorMode.magnetometer &&
+          (_state == RecordState.armed ||
+              _state == RecordState.recording)
+      ? 'Магнитное поле: ${_magnetScore.round()} µT'
+      : '';
 
   static const double _gravity = 9.81;
 
@@ -255,6 +298,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
     _accelSub?.cancel();
     _magSub?.cancel();
+    _watchdog?.cancel();
     _sendData();
   }
 
@@ -417,6 +461,14 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         const SizedBox(height: 12),
+        if (_liveSensorText.isNotEmpty) ...[
+          Text(
+            _liveSensorText,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 13, color: Colors.white60),
+          ),
+          const SizedBox(height: 4),
+        ],
         Text(
           indicatorText,
           textAlign: TextAlign.center,
